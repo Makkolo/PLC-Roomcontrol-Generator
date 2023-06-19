@@ -16,8 +16,9 @@
 void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std::string(&sRom)[1000], std::string(&sRomtype)[1000], std::string(&sKommentar)[1000], std::string& sAdresseFormat, int const& iMax)
 {
     //Variabel deklarering
-    int iMaster = 1, iKnx = 1, iKnxOutputs = 0, iCfc_id = 0, iCfc_Order = 0, iCfc_y = 0;
+    int iMaster = 1, iKnx = 1, iKnxOutputs = -1, iCfc_id = 0, iCfc_Order = 0, iCfc_y = 0, iCfc_x = 0, iLast1 = 0, iLast2 = 0;
     std::string sPreset = "";
+    bool xComment = true, xSpace = false;
 
 
     sPath = sPath + "AutGenImport.xml";
@@ -67,6 +68,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     fOutput << "<types>\n\t\t";
     fOutput << "<dataTypes />\n\t\t";
     fOutput << "<pous>\n\t\t";
+
     fOutput << "<pou name=\"PRG_563_KNX\" pouType=\"program\">\n" + Tabs(3);
     fOutput << "<interface>\n" + Tabs(4);
     fOutput << "<localVars>\n" + Tabs(5);
@@ -97,133 +99,68 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     fOutput << "</type>\n" + Tabs(5);
     fOutput << "</variable>\n" + Tabs(5);
 
+    fOutput.close();
 
-    //Skriver lokalvariabler. Varierer etter romtype
+    //Skriver lokalvariabler
     for (int i = 0; i < iMax; i++)
     {
         if (bUsed[i])
         {
-            fOutput.close();
+            for (int j = 0; j < 10; j++)
+            {
+                xComment = true;
+                if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "1")
+                {
+                    switch (j)
+                    {
+                    case 0:
+                        Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        break;
 
-            //Romtype 0 (Bev)
-            if (sRomtype[i] == "0")
-            {
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 1
-            else if (sRomtype[i] == "1")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 2
-            else if (sRomtype[i] == "2")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 3
-            else if (sRomtype[i] == "3")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lc(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 4
-            else if (sRomtype[i] == "4")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 5
-            else if (sRomtype[i] == "5")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lc(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 6
-            else if (sRomtype[i] == "6")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 7
-            else if (sRomtype[i] == "7")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lc(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 8
-            else if (sRomtype[i] == "8")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lc(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 9
-            else if (sRomtype[i] == "9")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Sp(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 10
-            else if (sRomtype[i] == "10")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lc(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Sp(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 11
-            else if (sRomtype[i] == "11")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Sp(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            //Romtype 12
-            else if (sRomtype[i] == "12")
-            {
-                Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lh(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Lc(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i]);
-                Knx_var_Sp(sPath, &iMaster, &iKnx, sRom[i]);
-            }
-            else
-            {
-                std::cout << "Error: Rom " << sRom[i] << " Feil i romtype\n";
-                Sleep(10000);
-                abort;
+                    case 1:
+                        Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        break;
+
+                    case 2:
+                        Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        break;
+
+                    case 3:
+                        Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        break;
+
+                    case 4:
+                        Knx_var_Lh_OP(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        iKnxOutputs += 1;
+                        break;
+
+                    case 5:
+                        Knx_var_Lh_CMD(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        iKnxOutputs += 1;
+                        break;
+
+                    case 6:
+                        Knx_var_Lc_OP(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        iKnxOutputs += 1;
+                        break;
+
+                    case 7:
+                        Knx_var_Lc_CMD(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        iKnxOutputs += 1;
+                        break;
+
+                    case 8:
+                        Knx_var_Sp(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        break;
+
+                    case 9:
+                        Knx_var_Sp_Fb(sPath, &iMaster, &iKnx, sRom[i], &xComment);
+                        break;
+
+                    default:
+                        break;
+                    }
+                }
             }
         }
         else
@@ -246,24 +183,6 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
     fOutput.close();    //Lukker fil før funksjoner kjøres
 
-
-    //Finner ut hvor mange outputs det er
-    for (int i = 0; i < iMax; i++)
-    {
-        if (bUsed[i])
-        {
-            if (sRomtype[i] == "5" || sRomtype[i] == "8" || sRomtype[i] == "10" || sRomtype[i] == "12")
-            {
-                iKnxOutputs += 2;
-            }
-            else if (sRomtype[i] == "2" || sRomtype[i] == "3" || sRomtype[i] == "6" || sRomtype[i] == "7" || sRomtype[i] == "9" || sRomtype[i] == "11")
-            {
-                iKnxOutputs++;
-            }
-        }
-        else
-            break;
-    }
     //Skriv CFC kode for KNX ouput interval
     Knx_cfc_Interval(sPath, iKnxOutputs);
     iCfc_id = 22;
@@ -279,140 +198,110 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     {
         if (bUsed[i])
         {
-            //Standard romtyper
-            if (sRomtype[i] == "0")
+            Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
+            for (int j = 0; j < 10; j++)
             {
-                Knx_cfc_comment_b(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 21;
-            }
-            else if (sRomtype[i] == "1")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 22;
-            }
-            else if (sRomtype[i] == "2")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 22;
-            }
-            else if (sRomtype[i] == "3")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                iCfc_y += 38;
-            }
-            else if (sRomtype[i] == "4")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 38;
-            }
-            else if (sRomtype[i] == "5")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                iCfc_y += 38;
-            }
-            else if (sRomtype[i] == "6")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 38;
-            }
-            else if (sRomtype[i] == "7")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 38;
-            }
-            else if (sRomtype[i] == "8")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 38;
-            }
-            else if (sRomtype[i] == "9")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], sRomtype[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 54;
-            }
-            else if (sRomtype[i] == "10")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], sRomtype[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 54;
-            }
-            else if (sRomtype[i] == "11")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], sRomtype[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 54;
-            }
-            else if (sRomtype[i] == "12")
-            {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-                Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, &iKnxOutputs);
-                Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], sRomtype[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y);
-                iCfc_y += 54;
-            }
+                if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "1")
+                {
+                    switch (j)
+                    {
+                    case 0:
+                        Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
 
-            //Ekstra romtyper
-                //Bethel
+                    case 1:
+                        Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 2:
+                        Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 3:
+                        Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 4:
+                        Knx_cfc_Lh_OP(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 5:
+                        Knx_cfc_Lh_CMD(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 6:
+                        Knx_cfc_Lc_OP(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 7:
+                        Knx_cfc_Lc_CMD(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 8:
+                        Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    case 9:
+                        Knx_cfc_Sp_Fb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                        iLast2 = iLast1;
+                        iLast1 = j;
+                        break;
+
+                    default:
+                        break;
+                    }
+                    if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                    {
+                        iCfc_x = 2;
+                        iCfc_y += 18;
+                        xSpace = true;
+                    }
+                    else if (iCfc_x >= 40)
+                    {
+                        iCfc_x = 2;
+                        iCfc_y += 19;
+                        xSpace = true;
+                    }
+                    else
+                    {
+                        iCfc_x += 42;
+                        xSpace = false;
+                    }
+                }
+            }
+            if (xSpace)
+            {
+                iCfc_x = 2;
+                iCfc_y += 8;
+            }
+            else if ((iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+            {
+                iCfc_x = 2;
+                iCfc_y += 26;
+            }
             else
-                break;
-            iCfc_y += 18;
+            {
+                iCfc_x = 2;
+                iCfc_y += 27;
+            }
         }
         else
             break;

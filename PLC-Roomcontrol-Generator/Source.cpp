@@ -164,7 +164,7 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
             }
 
             //Skriver ut navn i console slik at du kan se feil før du går til txt fil
-            cout << "\n\t" << sRom[i] << "\t" << sRomtype[i] << "\t" << sKommentar[i] << "\n\n";
+            cout << "\n\t" << sRom[i] << "\t" << sRomtype[i] << "\t\t" << sKommentar[i] << "\n\n";
         }
         else
             break;
