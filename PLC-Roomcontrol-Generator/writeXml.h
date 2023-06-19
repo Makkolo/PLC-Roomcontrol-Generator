@@ -16,7 +16,7 @@
 void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std::string(&sRom)[1000], std::string(&sRomtype)[1000], std::string(&sKommentar)[1000], std::string& sAdresseFormat, int const& iMax)
 {
     //Variabel deklarering
-    int iMaster = 1, iKnx = 1, iKnxOutputs = -1, iCfc_id = 0, iCfc_Order = 0, iCfc_y = 0, iCfc_x = 0, iLast1 = 0, iLast2 = 0;
+    int iZero = 0, iSpan = 0, iMaster = 1, iKnx = 0, iMasterMax = 1, iKnxOutputs = -1, iCfc_id = 0, iCfc_Order = 0, iCfc_y = 3, iCfc_x = 2, iSize = 0, iTemp = 0, iLast1 = 0, iLast2 = 0;
     std::string sPreset = "";
     bool xComment = true, xSpace = false;
 
@@ -69,254 +69,671 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     fOutput << "<dataTypes />\n\t\t";
     fOutput << "<pous>\n\t\t";
 
-    fOutput << "<pou name=\"PRG_563_KNX\" pouType=\"program\">\n" + Tabs(3);
-    fOutput << "<interface>\n" + Tabs(4);
-    fOutput << "<localVars>\n" + Tabs(5);
-
-    //Local Var
-
-    fOutput << "<variable name=\"i\">\n" + Tabs(6);
-    fOutput << "<type>\n" + Tabs(7);
-    fOutput << "<INT />\n" + Tabs(6);
-    fOutput << "</type>\n" + Tabs(6);
-    fOutput << "<initialValue>\n" + Tabs(7);
-    fOutput << "<simpleValue value=\"0\" />\n" + Tabs(6);
-    fOutput << "</initialValue>\n" + Tabs(6);
-    fOutput << "<documentation>\n" + Tabs(7);
-    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Felles</xhtml>\n" + Tabs(6);
-    fOutput << "</documentation>\n" + Tabs(5);
-    fOutput << "</variable>\n" + Tabs(5);
-
-    fOutput << "<variable name=\"Interval\">\n" + Tabs(6);
-    fOutput << "<type>\n" + Tabs(7);
-    fOutput << "<derived name=\"OSCAT_BASIC.CLK_PRG\" />\n" + Tabs(6);
-    fOutput << "</type>\n" + Tabs(5);
-    fOutput << "</variable>\n" + Tabs(5);
-
-    fOutput << "<variable name=\"typDPT\">\n" + Tabs(6);
-    fOutput << "<type>\n" + Tabs(7);
-    fOutput << "<derived name=\"typDPT\" />\n" + Tabs(6);
-    fOutput << "</type>\n" + Tabs(5);
-    fOutput << "</variable>\n" + Tabs(5);
-
-    fOutput.close();
-
-    //Skriver lokalvariabler
+    //Finner ut hvor mange knx linjer som trengs
     for (int i = 0; i < iMax; i++)
     {
         if (bUsed[i])
         {
-            for (int j = 0; j < 10; j++)
+            iTemp = 0;
+            iSize = sRomtype[i].size();
+            for (int j = 0; j <= iSize; j++)
             {
-                xComment = true;
-                if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "1")
-                {
-                    switch (j)
-                    {
-                    case 0:
-                        Knx_var_Rb(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        break;
-
-                    case 1:
-                        Knx_var_Hvac(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        break;
-
-                    case 2:
-                        Knx_var_Rt(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        break;
-
-                    case 3:
-                        Knx_var_Ry(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        break;
-
-                    case 4:
-                        Knx_var_Lh_OP(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        iKnxOutputs += 1;
-                        break;
-
-                    case 5:
-                        Knx_var_Lh_CMD(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        iKnxOutputs += 1;
-                        break;
-
-                    case 6:
-                        Knx_var_Lc_OP(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        iKnxOutputs += 1;
-                        break;
-
-                    case 7:
-                        Knx_var_Lc_CMD(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        iKnxOutputs += 1;
-                        break;
-
-                    case 8:
-                        Knx_var_Sp(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        break;
-
-                    case 9:
-                        Knx_var_Sp_Fb(sPath, &iMaster, &iKnx, sRom[i], &xComment);
-                        break;
-
-                    default:
-                        break;
-                    }
-                }
+                if (sRomtype[i].substr(j, 1) == "1")
+                    iTemp++;
             }
-        }
-        else
-            break;
-    }
-
-    //Åpner output fil igjen
-    fOutput.open(sPath, std::ios::app);
-
-    //Ender lokal variabler, og starter på program
-    fOutput << "</localVars>\n" + Tabs(3);
-    fOutput << "</interface>\n" + Tabs(3);
-    fOutput << "<body>\n" + Tabs(4);
-    fOutput << "<ST>\n" << Tabs(5);
-    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\" />\n" << Tabs(5);
-    fOutput << "</ST>\n" << Tabs(4);
-    fOutput << "<addData>\n" << Tabs(5);
-    fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfc\" handleUnknown=\"implementation\">\n" << Tabs(4);
-    fOutput << "<CFC>\n\t";
-
-    fOutput.close();    //Lukker fil før funksjoner kjøres
-
-    //Skriv CFC kode for KNX ouput interval
-    Knx_cfc_Interval(sPath, iKnxOutputs);
-    iCfc_id = 22;
-    iCfc_Order = 7;
-
-    //Resetter Knx variabler brukt i lokal variabel deklarering
-    iMaster = 1;
-    iKnx = 1;
-    iKnxOutputs = 0;
-
-
-    for (int i = 0; i < iMax; i++)
-    {
-        if (bUsed[i])
-        {
-            Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
-            for (int j = 0; j < 10; j++)
+            if ((iKnx + iTemp) == 255)
             {
-                if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "1")
-                {
-                    switch (j)
-                    {
-                    case 0:
-                        Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 1:
-                        Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 2:
-                        Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 3:
-                        Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 4:
-                        Knx_cfc_Lh_OP(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 5:
-                        Knx_cfc_Lh_CMD(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 6:
-                        Knx_cfc_Lc_OP(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 7:
-                        Knx_cfc_Lc_CMD(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 8:
-                        Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    case 9:
-                        Knx_cfc_Sp_Fb(sPath, sGVL, sAdresseFormat, sRom[i], &iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
-                        iLast2 = iLast1;
-                        iLast1 = j;
-                        break;
-
-                    default:
-                        break;
-                    }
-                    if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
-                    {
-                        iCfc_x = 2;
-                        iCfc_y += 18;
-                        xSpace = true;
-                    }
-                    else if (iCfc_x >= 40)
-                    {
-                        iCfc_x = 2;
-                        iCfc_y += 19;
-                        xSpace = true;
-                    }
-                    else
-                    {
-                        iCfc_x += 42;
-                        xSpace = false;
-                    }
-                }
+                iMasterMax++;
+                iKnx = 0;
             }
-            if (xSpace)
+            else if ((iKnx + iTemp) > 255)
             {
-                iCfc_x = 2;
-                iCfc_y += 8;
-            }
-            else if ((iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
-            {
-                iCfc_x = 2;
-                iCfc_y += 26;
+                iMasterMax++;
+                iKnx = 0;
+                i--;
             }
             else
-            {
-                iCfc_x = 2;
-                iCfc_y += 27;
-            }
+                iKnx += iTemp;
         }
         else
             break;
     }
 
+    //Lager alle KNX linjer brukt
+    for (int k = 0; k < iMasterMax; k++)
+    {
+        iMaster = k + 1;
+        iKnx = 0;
+        iKnxOutputs = 0;
+        iCfc_id = 0;
+        iCfc_Order = 0;
+        iCfc_y = 2;
+        iCfc_x = 2;
+        //Finner max knx verdi for nåværende linje
+        for (int i = iZero; i < iMax; i++)
+        {
+            if (bUsed[i])
+            {
+                iTemp = 0;
+                iSize = sRomtype[i].size();
+                for (int j = 0; j <= iSize; j++)
+                {
+                    if (sRomtype[i].substr(j, 1) == "1")
+                        iTemp++;
+                }
+                if ((iKnx + iTemp) == 255)
+                {
+                    iKnx = 255;
+                    iSpan = i + 1;
+                    break;
+                }
+                else if ((iKnx + iTemp) > 255)
+                {
+                    iSpan = i;
+                    break;
+                }
+                else
+                {
+                    iKnx += iTemp;
+                    iSpan = i + 1;
+                }
+            }
+            else
+                break;
+        }
+        iKnx = 1;
 
-    fOutput.open(sPath, std::ios::app);
+
+        if (fOutput.is_open() == false)
+            fOutput.open(sPath, std::ios::app);
+
+        fOutput << "<pou name=\"PRG_563_KNX_" << iMaster << "\" pouType=\"program\">\n" + Tabs(3);
+        fOutput << "<interface>\n" + Tabs(4);
+        fOutput << "<localVars>\n" + Tabs(5);
+
+        //Local Var
+
+        fOutput << "<variable name=\"i\">\n" + Tabs(6);
+        fOutput << "<type>\n" + Tabs(7);
+        fOutput << "<INT />\n" + Tabs(6);
+        fOutput << "</type>\n" + Tabs(6);
+        fOutput << "<initialValue>\n" + Tabs(7);
+        fOutput << "<simpleValue value=\"0\" />\n" + Tabs(6);
+        fOutput << "</initialValue>\n" + Tabs(6);
+        fOutput << "<documentation>\n" + Tabs(7);
+        fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Felles</xhtml>\n" + Tabs(6);
+        fOutput << "</documentation>\n" + Tabs(5);
+        fOutput << "</variable>\n" + Tabs(5);
+
+        fOutput << "<variable name=\"Interval\">\n" + Tabs(6);
+        fOutput << "<type>\n" + Tabs(7);
+        fOutput << "<derived name=\"OSCAT_BASIC.CLK_PRG\" />\n" + Tabs(6);
+        fOutput << "</type>\n" + Tabs(5);
+        fOutput << "</variable>\n" + Tabs(5);
+
+        fOutput << "<variable name=\"typDPT\">\n" + Tabs(6);
+        fOutput << "<type>\n" + Tabs(7);
+        fOutput << "<derived name=\"typDPT\" />\n" + Tabs(6);
+        fOutput << "</type>\n" + Tabs(5);
+        fOutput << "</variable>\n" + Tabs(5);
+
+        fOutput << "<variable name=\"KNX_master_" << iMaster << "\">\n" + Tabs(6);
+        fOutput << "<type>\n" + Tabs(7);
+        fOutput << "<derived name=\"WagoAppKNX.FbKNX_Master\" />\n" + Tabs(6);
+        fOutput << "</type>\n" + Tabs(6);
+        fOutput << "<documentation>\n" + Tabs(7);
+        fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Master</xhtml>\n" + Tabs(6);
+        fOutput << "</documentation>\n" + Tabs(5);
+        fOutput << "</variable>\n" + Tabs(5);
+
+        fOutput.close();
+
+        //Skriver lokalvariabler
+        for (int i = iZero; i < iSpan; i++)
+        {
+            if (bUsed[i])
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    xComment = true;
+                    if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "1")
+                    {
+                        switch (j)
+                        {
+                        case 0:
+                            Knx_var_Rb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 1:
+                            Knx_var_Hvac(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 2:
+                            Knx_var_Rt(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 3:
+                            Knx_var_Ry(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 4:
+                            Knx_var_Lh_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 5:
+                            Knx_var_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 6:
+                            Knx_var_Lc_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 7:
+                            Knx_var_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 8:
+                            Knx_var_Sp(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 9:
+                            Knx_var_Sp_Fb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                    else if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "2")
+                    {
+                        switch (j)
+                        {
+                        case 0:
+                            Knx_var_Rb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Rb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 1:
+                            Knx_var_Hvac(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Hvac(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 2:
+                            Knx_var_Rt(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Rt(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 3:
+                            Knx_var_Ry(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Ry(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 4:
+                            Knx_var_Lh_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Lh_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 5:
+                            Knx_var_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 6:
+                            Knx_var_Lc_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Lc_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 7:
+                            Knx_var_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 8:
+                            Knx_var_Sp(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Sp(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 9:
+                            Knx_var_Sp_Fb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            Knx_var_Sp_Fb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+                break;
+        }
+
+        //Åpner output fil igjen
+        fOutput.open(sPath, std::ios::app);
+
+        //Ender lokal variabler, og starter på program
+        fOutput << "</localVars>\n" + Tabs(3);
+        fOutput << "</interface>\n" + Tabs(3);
+        fOutput << "<body>\n" + Tabs(4);
+        fOutput << "<ST>\n" << Tabs(5);
+        fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\" />\n" << Tabs(5);
+        fOutput << "</ST>\n" << Tabs(4);
+        fOutput << "<addData>\n" << Tabs(5);
+        fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfc\" handleUnknown=\"implementation\">\n" << Tabs(4);
+        fOutput << "<CFC>\n\t";
+
+        fOutput.close();    //Lukker fil før funksjoner kjøres
+
+        //Skriv CFC kode for KNX ouput interval
+        Knx_cfc_Interval(sPath, iKnxOutputs);
+        iCfc_id = 22;
+        iCfc_Order = 7;
+        Knx_cfc_Master(sPath, sGVL, sAdresseFormat, iMaster, &iCfc_Order, &iCfc_id);
+
+        //Resetter Knx variabler brukt i lokal variabel deklarering
+        iKnx = 1;
+        iKnxOutputs = 0;
+
+
+        for (int i = iZero; i < iSpan; i++)
+        {
+            if (bUsed[i])
+            {
+                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
+                for (int j = 0; j < 10; j++)
+                {
+                    if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "1")
+                    {
+                        switch (j)
+                        {
+                        case 0:
+                            Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 1:
+                            Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 2:
+                            Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 3:
+                            Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 4:
+                            Knx_cfc_Lh_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 5:
+                            Knx_cfc_Lh_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 6:
+                            Knx_cfc_Lc_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 7:
+                            Knx_cfc_Lc_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 8:
+                            Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 9:
+                            Knx_cfc_Sp_Fb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        default:
+                            break;
+                        }
+                        if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                        {
+                            iCfc_x = 2;
+                            iCfc_y += 18;
+                            xSpace = true;
+                        }
+                        else if (iCfc_x >= 40)
+                        {
+                            iCfc_x = 2;
+                            iCfc_y += 19;
+                            xSpace = true;
+                        }
+                        else
+                        {
+                            iCfc_x += 42;
+                            xSpace = false;
+                        }
+                    }
+                    else  if (j < sRomtype[i].size() && sRomtype[i].substr(j, 1) == "2")
+                    {
+                        switch (j)
+                        {
+                        case 0:
+                            Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 1:
+                            Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 2:
+                            Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 3:
+                            Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 4:
+                            Knx_cfc_Lh_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Lh_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 5:
+                            Knx_cfc_Lh_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Lh_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 6:
+                            Knx_cfc_Lc_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Lc_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 7:
+                            Knx_cfc_Lc_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Lc_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x, &iKnxOutputs);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 8:
+                            Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 9:
+                            Knx_cfc_Sp_Fb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 18;
+                                xSpace = true;
+                            }
+                            else if (iCfc_x >= 40)
+                            {
+                                iCfc_x = 2;
+                                iCfc_y += 19;
+                                xSpace = true;
+                            }
+                            else
+                            {
+                                iCfc_x += 42;
+                                xSpace = false;
+                            }
+                            Knx_cfc_Sp_Fb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, iCfc_y, iCfc_x);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        default:
+                            break;
+                        }
+                        if (iCfc_x >= 40 && (iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                        {
+                            iCfc_x = 2;
+                            iCfc_y += 18;
+                            xSpace = true;
+                        }
+                        else if (iCfc_x >= 40)
+                        {
+                            iCfc_x = 2;
+                            iCfc_y += 19;
+                            xSpace = true;
+                        }
+                        else
+                        {
+                            iCfc_x += 42;
+                            xSpace = false;
+                        }
+                    }
+                }
+                if (xSpace)
+                {
+                    iCfc_x = 2;
+                    iCfc_y += 8;
+                }
+                else if ((iLast1 < 2 || iLast1 == 5 || iLast1 == 7) && (iLast2 < 2 || iLast2 == 5 || iLast2 == 7))
+                {
+                    iCfc_x = 2;
+                    iCfc_y += 26;
+                }
+                else
+                {
+                    iCfc_x = 2;
+                    iCfc_y += 27;
+                }
+            }
+            else
+                break;
+        }
+        iZero = iSpan;
+
+        fOutput.open(sPath, std::ios::app);
+
+        fOutput << "</CFC>\n" + Tabs(1);
+        fOutput << "</data>\n" + Tabs(1);
+        fOutput << "</addData>\n" + Tabs(1);
+        fOutput << "</body>\n" + Tabs(1);
+        fOutput << "<addData />\n" + Tabs(1);
+        fOutput << "</pou>\n" + Tabs(1);
+    }
+
 
     //GVL
-    fOutput << "</CFC>\n" + Tabs(1);
-    fOutput << "</data>\n" + Tabs(1);
-    fOutput << "</addData>\n" + Tabs(1);
-    fOutput << "</body>\n" + Tabs(1);
-    fOutput << "<addData />\n" + Tabs(1);
-    fOutput << "</pou>\n" + Tabs(1);
     fOutput << "</pous>\n" + Tabs(1);
     fOutput << "</types>\n" + Tabs(1);
     fOutput << "<instances>\n" + Tabs(1);
@@ -325,6 +742,19 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     fOutput << "<addData>\n" + Tabs(1);
     fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/globalvars\" handleUnknown=\"implementation\">\n" + Tabs(2);
     fOutput << "<globalVars name=\"" << sGVL <</*"\" retain=\"true\" persistent=\"true\*/"\">\n" + Tabs(3);
+
+    for (int i = 0; i < iMasterMax; i++)
+    {
+        iMaster = i + 1;
+        fOutput << "<variable name=\"" << sAdresseFormat << "_KNX_Card_" << iMaster << "_Status" << "\">\n" + Tabs(4);
+        fOutput << "<type>\n" + Tabs(5);
+        fOutput << "<BOOL />\n" + Tabs(4);
+        fOutput << "</type>\n" + Tabs(4);
+        fOutput << "<documentation>\n" + Tabs(4);
+        fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">KNX kort " << iMaster << " status</xhtml>\n" + Tabs(3);
+        fOutput << "</documentation>\n" + Tabs(3);
+        fOutput << "</variable>\n" + Tabs(3);
+    }
 
     for (int i = 0; i < iMax; i++)
     {
