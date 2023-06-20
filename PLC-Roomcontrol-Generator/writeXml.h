@@ -13,7 +13,7 @@
 
 
 
-void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std::string(&sRom)[1000], std::string(&sRomtype)[1000], std::string(&sKommentar)[1000], std::string& sAdresseFormat, int const& iMax)
+void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std::string(&sRom)[1000], std::string(&sRomtype563)[1000], std::string(&sRomtypeKnx)[1000], std::string(&sKommentar)[1000], std::string& sAdresseFormat, int const& iMax)
 {
     //Variabel deklarering
     int iZero = 0, iSpan = 0, iMaster = 1, iKnx = 0, iMasterMax = 1, iKnxOutputs = -1, iCfc_Id = 0, iCfc_Order = 0, iCfc_y = 3, iCfc_x = 2, iSize = 0, iAntall = 0, iTemp = 0, iLast1 = 0, iLast2 = 0;
@@ -78,16 +78,18 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         sDatatypes[i] = "";
     }
 
+    bool xLh = false, xLc = false;
 
     //Skriver datatyper som er brukt
     for (int i = 0; i < iMax; i++)
     {
+        xLh = xLc = false;
         if (bUsed[i])
         {
             xUnik = true;
             for (int j = 0; j < 100; j++)
             {
-                if (sRomtype[i] == sDatatypes[j])
+                if (sRomtype563[i] == sDatatypes[j])
                 {
                     xUnik = false;
                     break;
@@ -98,19 +100,19 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                 if (fOutput.is_open() == false)
                     fOutput.open(sPath, std::ios::app);
 
-                fOutput << "<dataType name=\"dtRomtype_" << sRomtype[i] << "\">\n" + Tabs(3);
+                fOutput << "<dataType name=\"dtRomtype_" << sRomtype563[i] << "\">\n" + Tabs(3);
                 fOutput << "<baseType>\n" + Tabs(4);
                 fOutput << "<struct>\n" + Tabs(5);
 
                 fOutput.close();
 
-                iSize = sRomtype[i].size();
+                iSize = sRomtype563[i].size();
 
                 for (int j = 0; j < iSize; j++)
                 {
                     xComment = true;
-                    iAntall = (stoi(sRomtype[i].substr(j, 1)));
-                    if (j < sRomtype[i].size() && iAntall >= 1)
+                    iAntall = (stoi(sRomtype563[i].substr(j, 1)));
+                    if (j < sRomtype563[i].size() && iAntall >= 1)
                     {
                         switch (j)
                         {
@@ -133,20 +135,22 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                         case 4:
                             Knx_dt_Lh_OP(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
                             iKnxOutputs++;
+                            xLh = true;
                             break;
 
                         case 5:
-                            Knx_dt_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
+                            Knx_dt_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall, xLh);
                             iKnxOutputs++;
                             break;
 
                         case 6:
                             Knx_dt_Lc_OP(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
                             iKnxOutputs++;
+                            xLc = true;
                             break;
 
                         case 7:
-                            Knx_dt_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
+                            Knx_dt_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall, xLc);
                             iKnxOutputs++;
                             break;
 
@@ -187,7 +191,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                 {
                     if (sDatatypes[j] == "")
                     {
-                        sDatatypes[j] = sRomtype[i];
+                        sDatatypes[j] = sRomtype563[i];
                         break;
                     }
                 }
@@ -197,15 +201,212 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
             break;
     }
 
-
-
-
-
-
-
-
     fOutput << "</dataTypes>\n\t\t";
     fOutput << "<pous>\n\t\t";
+
+
+    //Lager Funksjonsblokker (kun innganger og utganger. ingen funksjon/styring
+    xLh = xLc = false;
+    for (int i = 0; i < 100; i++)
+    {
+        xLh = false, xLc = false;
+        iSize = sDatatypes[i].size();
+        if (sDatatypes[i] != "")
+        {
+            if (iSize > 3)
+            {
+                fOutput << "<pou name = \"fbRomtype_" << sDatatypes[i] << "\" pouType = \"functionBlock\">\n\t";
+                fOutput << "<interface>\n\t";
+                fOutput << "<inputVars>\n\t";
+
+                fOutput.close();
+
+                for (int j = 0; j < iSize; j++)
+                {
+                    iAntall = (stoi(sDatatypes[i].substr(j, 1)));
+                    if (iAntall > 0)
+                    {
+                        switch (j)
+                        {
+                        case 1:
+                            Knx_Fb_In_Rb(sPath, iAntall);
+                            break;
+
+                        case 2:
+                            Knx_Fb_In_Rt(sPath, iAntall);
+                            break;
+
+                        case 3:
+                            Knx_Fb_In_Ry(sPath, iAntall);
+                            break;
+
+                        case 4:
+                            if (fOutput.is_open() == false)
+                                fOutput.open(sPath, std::ios::app);
+
+                            fOutput << "<variable name = \"LH601_MAN\">\n\t";
+                            fOutput << "<type>\n\t";
+                            fOutput << "<BOOL/>\n\t";
+                            fOutput << "</type>\n\t";
+                            fOutput << "</variable>\n\t";
+                            fOutput.close();
+                            xLh = true;
+                            break;
+
+                        case 5:
+                            if (!xLh)
+                            {
+                                if (fOutput.is_open() == false)
+                                    fOutput.open(sPath, std::ios::app);
+
+                                fOutput << "<variable name = \"LH601_MAN\">\n\t";
+                                fOutput << "<type>\n\t";
+                                fOutput << "<BOOL/>\n\t";
+                                fOutput << "</type>\n\t";
+                                fOutput << "</variable>\n\t";
+                                fOutput.close();
+                            }
+                            break;
+
+                        case 6:
+                            if (fOutput.is_open() == false)
+                                fOutput.open(sPath, std::ios::app);
+
+                            fOutput << "<variable name = \"LC601_SP\">\n\t";
+                            fOutput << "<type>\n\t";
+                            fOutput << "<REAL/>\n\t";
+                            fOutput << "</type>\n\t";
+                            fOutput << "</variable>\n\t";
+
+                            fOutput << "<variable name = \"LC601_MAN\">\n\t";
+                            fOutput << "<type>\n\t";
+                            fOutput << "<BOOL/>\n\t";
+                            fOutput << "</type>\n\t";
+                            fOutput << "</variable>\n\t";
+                            fOutput.close();
+                            xLc = true;
+                            break;
+
+                        case 7:
+                            if (!xLc)
+                            {
+                                if (fOutput.is_open() == false)
+                                    fOutput.open(sPath, std::ios::app);
+
+                                fOutput << "<variable name = \"LC601_SP\">\n\t";
+                                fOutput << "<type>\n\t";
+                                fOutput << "<REAL/>\n\t";
+                                fOutput << "</type>\n\t";
+                                fOutput << "</variable>\n\t";
+
+                                fOutput << "<variable name = \"LC601_MAN\">\n\t";
+                                fOutput << "<type>\n\t";
+                                fOutput << "<BOOL/>\n\t";
+                                fOutput << "</type>\n\t";
+                                fOutput << "</variable>\n\t";
+                                fOutput.close();
+                            }
+                            break;
+
+                        case 8:
+                            Knx_Fb_In_Sp_In(sPath, iAntall);
+                            break;
+
+                        case 10:
+                            Knx_Fb_In_Lu_V(sPath, iAntall);
+                            break;
+
+                        case 11:
+                            Knx_Fb_In_Lu_Al(sPath, iAntall);
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+
+                if (fOutput.is_open() == false)
+                    fOutput.open(sPath, std::ios::app);
+
+                fOutput << "</inputVars>\n\t";
+                fOutput << "<outputVars>\n\t";
+                fOutput.close();
+
+                for (int j = 0; j < iSize; j++)
+                {
+                    iAntall = (stoi(sDatatypes[i].substr(j, 1)));
+                    if (iAntall > 0)
+                    {
+                        switch (j)
+                        {
+                        case 2:
+                            Knx_Fb_Out_Rt(sPath, iAntall);
+                            break;
+
+                        case 3:
+                            if (fOutput.is_open() == false)
+                                fOutput.open(sPath, std::ios::app);
+
+                            fOutput << "<variable name = \"RY601_OP\">\n\t";
+                            fOutput << "<type>\n\t";
+                            fOutput << "<REAL/>\n\t";
+                            fOutput << "</type>\n\t";
+                            fOutput << "</variable>\n\t";
+                            fOutput.close();
+                            break;
+
+                        case 4:
+                            Knx_Fb_Out_Lh_Op(sPath, iAntall);
+                            break;
+                        case 5:;
+                            Knx_Fb_Out_Lh_Cmd(sPath, iAntall);
+                            break;
+
+                        case 6:
+                            Knx_Fb_Out_Lc_Op(sPath, iAntall);
+                            break;
+
+                        case 7:
+                            Knx_Fb_Out_Lc_Cmd(sPath, iAntall);
+                            break;
+
+                        case 9:
+                            //Knx_Fb_Out_Sp(sPath, iAntall);
+                            break;
+
+                        case 12:
+                            Knx_Fb_Out_Lu_Cmd(sPath, iAntall);
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+
+                if (fOutput.is_open() == false)
+                    fOutput.open(sPath, std::ios::app);
+
+                fOutput << "</outputVars>\n\t";
+                fOutput << "</interface>\n\t";
+                fOutput << "<body>\n\t";
+                fOutput << "<ST>\n\t";
+                fOutput << "<xhtml xmlns = \"http://www.w3.org/1999/xhtml\"/>\n\t";
+                fOutput << "</ST>\n\t";
+                fOutput << "<addData>\n\t";
+                fOutput << "<data name = \"http ://www.3s-software.com/plcopenxml/cfc\" handleUnknown = \"implementation\">\n\t";
+                fOutput << "<CFC/>\n\t";
+                fOutput << "</data>\n\t";
+                fOutput << "</addData>\n\t";
+                fOutput << "</body>\n\t";
+                fOutput << "<addData/>\n\t";
+                fOutput << "</pou>\n\t";
+            }
+        }
+        else
+            break;
+    }
 
     //Finner ut hvor mange knx linjer som trengs
     for (int i = 0; i < iMax; i++)
@@ -213,10 +414,10 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         if (bUsed[i])
         {
             iTemp = 0;
-            iSize = sRomtype[i].size();
+            iSize = sRomtypeKnx[i].size();
             for (int j = 0; j < iSize; j++)
             {
-                iAntall = stoi(sRomtype[i].substr(j, 1));
+                iAntall = stoi((sRomtypeKnx[i].substr(j, 1)));
                 if (iAntall >= 1)
                     iTemp += iAntall;
             }
@@ -253,10 +454,10 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         {
             if (bUsed[i])
             {
-                iSize = sRomtype[i].size();
+                iSize = sRomtypeKnx[i].size();
                 for (int j = 0; j < iSize; j++)
                 {
-                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    iAntall = stoi(sRomtypeKnx[i].substr(j, 1));
                     if (iAntall >= 1)
                         iTemp += iAntall;
                 }
@@ -272,7 +473,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         if (fOutput.is_open() == false)
             fOutput.open(sPath, std::ios::app);
 
-        fOutput << "<pou name=\"PRG_563_KNX_" << iMaster << "\" pouType=\"program\">\n" + Tabs(3);
+        fOutput << "<pou name=\"PRG_KNX_563_" << iMaster << "\" pouType=\"program\">\n" + Tabs(3);
         fOutput << "<interface>\n" + Tabs(4);
         fOutput << "<localVars>\n" + Tabs(5);
 
@@ -325,12 +526,12 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         {
             if (bUsed[i] && iKnx <= iSpan)
             {
-                iSize = sRomtype[i].size();
+                iSize = sRomtypeKnx[i].size();
                 xComment = true;
                 for (int j = 0; j < iSize; j++)
                 {
-                    iAntall = stoi(sRomtype[i].substr(j, 1));
-                    if (j < sRomtype[i].size() && iAntall >= 1)
+                    iAntall = stoi(sRomtypeKnx[i].substr(j, 1));
+                    if (j < sRomtypeKnx[i].size() && iAntall >= 1)
                     {
                         switch (j)
                         {
@@ -437,12 +638,12 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
             {
                 Knx_cfc_comment_a(sPath, sRom[i], &iCfc_Id, iCfc_y);
 
-                iSize = sRomtype[i].size();
+                iSize = sRomtypeKnx[i].size();
 
                 for (int j = 0; j < iSize; j++)
                 {
-                    iAntall = stoi(sRomtype[i].substr(j, 1));
-                    if (j < sRomtype[i].size() && iAntall >= 1)
+                    iAntall = stoi(sRomtypeKnx[i].substr(j, 1));
+                    if (j < sRomtypeKnx[i].size() && iAntall >= 1)
                     {
                         switch (j)
                         {
@@ -564,11 +765,12 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Romstyring programm
     iKnx = iCfc_Id = iCfc_Order = iCfc_y = 0;
+    iCfc_y = -18;
 
 
     //Temp variabler for å telle inputs og outputs. Mer inn/outputs = mer io pluss på y akse
     int iInOut = 0, iFb = 0, iHeight = 0;
-    bool xLh = false, xLc = false;
+    xLh = xLc = false;
 
 
     fOutput << "<pou name=\"PRG_563_Romstyring" << "\" pouType=\"program\">\n" + Tabs(3);
@@ -580,10 +782,10 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     {
         if (bUsed[i])
         {
-            iSize = sRomtype[i].size();
-            if (iSize > 2)
+            iSize = sRomtype563[i].size();
+            if (iSize > 3)
             {
-                Knx_var_Romstyring_Fb(sPath, sRom[i], sRomtype[i]);
+                Knx_var_Romstyring_Fb(sPath, sRom[i], sRomtype563[i]);
             }
         }
         else
@@ -608,8 +810,8 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         xLh = xLc = false;
         if (bUsed[i])
         {
-            iSize = sRomtype[i].size();
-            if (iSize > 2)
+            iSize = sRomtype563[i].size();
+            if (iSize > 3)
             {
                 //comment
                 Knx_cfc_Fb_Comment(sPath, sRom[i], &iCfc_Id, &iCfc_y);
@@ -618,7 +820,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                 //Inputs
                 for (int j = 0; j < iSize; j++)
                 {
-                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    iAntall = stoi(sRomtype563[i].substr(j, 1));
                     if (iAntall > 0)
                     {
                         switch (j)
@@ -655,16 +857,16 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                                 Knx_cfc_In_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
                             break;
 
-                        case 10:
+                        case 9:
                             Knx_cfc_In_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
                             break;
 
-                        case 11:
+                        case 10:
                             Knx_cfc_In_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
                             break;
 
                         default:
-                            std::cout << "Error: Cant find In var of type" << j << "\n";
+                            //std::cout << "Error: Cant find In var of type" << j << "\n";
                             break;
                         }
                     }
@@ -674,7 +876,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
                 //Lager funksjonsblokk
                 fOutput.open(sPath, std::ios::app);
-                fOutput << "<block localId=\"" << (0 + iCfc_Id) << "\" executionOrderId=\"" << (0 + iCfc_Order) << "\" typeName=\"fbRomtype_" << sRomtype[i] << "\" instanceName=\"Rom_" << sRom[i] << "\">\n\t";
+                fOutput << "<block localId=\"" << (0 + iCfc_Id) << "\" executionOrderId=\"" << (0 + iCfc_Order) << "\" typeName=\"fbRomtype_" << sRomtype563[i] << "\" instanceName=\"Rom_" << sRom[i] << "\">\n\t";
                 fOutput << "<position x=\"" << (26) << "\" y=\"" << (28 + iCfc_y) << "\" />\n\t";
                 fOutput << "<inputVariables>\n\t";
                 iCfc_Id++;
@@ -685,7 +887,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                 //FB inputs
                 for (int j = 0; j < iSize; j++)
                 {
-                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    iAntall = stoi(sRomtype563[i].substr(j, 1));
                     if (iAntall > 0)
                     {
                         switch (j)
@@ -723,15 +925,15 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                                 Knx_cfc_In_Fb_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
                             break;
 
-                        case 10:
+                        case 9:
                             Knx_cfc_In_Fb_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
                             break;
 
-                        case 11:
+                        case 10:
                             Knx_cfc_In_Fb_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
                             break;
                         default:
-                            std::cout << "Error: Cant find input of type" << j << "\n";
+                            //std::cout << "Error: Cant find input of type" << j << "\n";
                             break;
                         }
                     }
@@ -751,7 +953,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                 iInOut = iFb = 0;
                 for (int j = 0; j < iSize; j++)
                 {
-                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    iAntall = stoi(sRomtype563[i].substr(j, 1));
                     if (iAntall > 0)
                     {
                         switch (j)
@@ -785,7 +987,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                             break;
 
                         default:
-                            std::cout << "Error: Cant find output of type" << j << "\n";
+                            //std::cout << "Error: Cant find output of type" << j << "\n";
                             break;
                         }
                     }
@@ -811,7 +1013,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                 iInOut = 0;
                 for (int j = 0; j < iSize; j++)
                 {
-                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    iAntall = stoi(sRomtype563[i].substr(j, 1));
                     if (iAntall > 0)
                     {
                         switch (j)
@@ -845,7 +1047,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                             break;
 
                         default:
-                            std::cout << "Error: Cant find out var of type" << j << "\n";
+                            //std::cout << "Error: Cant find out var of type" << j << "\n";
                             break;
                         }
                     }
@@ -898,7 +1100,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
             fOutput << "<variable name=\"" << sAdresseFormat << "_" << sRom[i] << "\">\n" + Tabs(4);
             fOutput << "<type>\n" + Tabs(5);
-            fOutput << "<derived name=\"dtRomtype_" << sRomtype[i] << "\" />\n" + Tabs(4);
+            fOutput << "<derived name=\"dtRomtype_" << sRomtype563[i] << "\" />\n" + Tabs(4);
             fOutput << "</type>\n" + Tabs(4);
             fOutput << "<documentation>\n" + Tabs(4);
             fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">" << sKommentar[i] << "</xhtml>\n" + Tabs(3);

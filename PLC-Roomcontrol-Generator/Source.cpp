@@ -22,7 +22,8 @@ string sInfo = "STLV80_563\tSTLV80_A_563";
 string sGVL = "STLV80_563"; //ønsket navn på GVL
 string sAdresseFormat = "STLV80_A_563";
 string sRom[iMax];      //Navn på rom
-string sRomtype[iMax];     //Porten/linjen på VAV-en
+string sRomtype563[iMax];     //Romtype brukt til romstyring
+string sRomtypeKnx[iMax];     //Romtype brukt i KNX
 string sKommentar[iMax];      //Adressen til VAV-en
 
 
@@ -143,11 +144,19 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
 
                         //pos = sInput[i].find("\t");     //Finner neste understrek posisjonen i stringet hvor verdien vi leser inn ender
                         iSize = ((sInput[i].size()) - pos - 1);     //Bestemmer størelsen på stringet vi lagrer verdien i (posisjon på understrek - 1(understreken))
-                        sRomtype[i] = (sInput[i].substr(0, pos));       //Lagrer verdi i Tilhørende variabel
+                        sRomtype563[i] = (sInput[i].substr(0, pos));       //Lagrer verdi i Tilhørende variabel
                         sInput[i] = sInput[i].substr(pos + 1, iSize);       //Fjerner verdien fra input variabelen
                         break;
 
-                    case 2:     //Tredje verdi (Kommentar)
+                    case 2:     //Andre verdi (Romtype)
+
+                        //pos = sInput[i].find("\t");     //Finner neste understrek posisjonen i stringet hvor verdien vi leser inn ender
+                        iSize = ((sInput[i].size()) - pos - 1);     //Bestemmer størelsen på stringet vi lagrer verdien i (posisjon på understrek - 1(understreken))
+                        sRomtypeKnx[i] = (sInput[i].substr(0, pos));       //Lagrer verdi i Tilhørende variabel
+                        sInput[i] = sInput[i].substr(pos + 1, iSize);       //Fjerner verdien fra input variabelen
+                        break;
+
+                    case 3:     //Tredje verdi (Kommentar)
 
                         //pos = sInput[i].find("\t");     //Finner neste understrek posisjonen i stringet hvor verdien vi leser inn ender
                         iSize = ((sInput[i].size()) - pos - 1);     //Bestemmer størelsen på stringet vi lagrer verdien i (posisjon på understrek - 1(understreken))
@@ -164,7 +173,7 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
             }
 
             //Skriver ut navn i console slik at du kan se feil før du går til txt fil
-            cout << "\n\t" << sRom[i] << "\t" << sRomtype[i] << "\t\t" << sKommentar[i] << "\n\n";
+            cout << "\n\t" << sRom[i] << "\t" << sRomtype563[i] << sRomtypeKnx[i] << "\t\t" << sKommentar[i] << "\n\n";
         }
         else
             break;
@@ -188,7 +197,7 @@ int main() //Starter med å lokalisere seg selv, og får derfor sin egen plasserin
 
     Read();
     Prossesering();
-    WriteXML_KNX(sPath2, bUsed, sGVL, sRom, sRomtype, sKommentar, sAdresseFormat, iMax);
+    WriteXML_KNX(sPath2, bUsed, sGVL, sRom, sRomtype563, sRomtypeKnx, sKommentar, sAdresseFormat, iMax);
 
     auto tStopp = std::chrono::high_resolution_clock::now();
     auto tRuntime = std::chrono::duration_cast<std::chrono::milliseconds>(tStopp - tStart);
