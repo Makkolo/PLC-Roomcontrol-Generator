@@ -35,19 +35,26 @@ void OpenFile()
 
     sFilPath = (sPath2 + sSource);       //Den fulle adressen til filen som skal leses fra
     cout << sFilPath << "\n";                   //test
-}
-void Read() //Spør etter navn på fil som skal leses, og leser deretter inn hver linje og lagrer dem i egne variabler.
-{
+
+
+
     ifstream fInput(sFilPath + ".txt");      //Åpner fil som skal leses fra
     //fInput.open(sFilPath);        //test
-    if (fInput.is_open() == false)       //Sjekker om filen ble åpnet
+    if (!fInput.is_open())       //Sjekker om filen ble åpnet
     {
         cout << "Cant open file\n\tHusk .txt, Ikke run program i 'rare' mapper (mtp. adresse)\n";     //Melder ifra om feil hvis fil ikke ble åpnet
         //Sleep(10000);
         OpenFile();
+        return;
     }
 
     cout << "File found\n";
+
+    fInput.close();     //Lukker fil som vi leste fra
+}
+void Read() //Spør etter navn på fil som skal leses, og leser deretter inn hver linje og lagrer dem i egne variabler.
+{
+    ifstream fInput(sFilPath + ".txt");      //Åpner fil som skal leses fra
     /*cout << "Skriv inn GVL navn\n\teksempel: STLV80_563\n\tGVL navn: ";      //Spør etter GVL navn eks. STLV80_360
     cin >> sGVL;       //Tar inn GVL Navn
     cout << "Skriv inn adresseformat\n\teksempel: STLV80_A_563_[Rom]\t IKKE ta med Rom\n\tAdresseformat: ";      //Spør etter adresse format eks. STLV80_563.STLV80_A_563_
@@ -111,7 +118,7 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
             iSize = 0;
 
 
-            for (int j = 0; j < 3; j++)      //Går gjennom og deler opp etter Rom, kommentar, romtype
+            for (int j = 0; j < 4; j++)      //Går gjennom og deler opp etter Rom, kommentar, romtype
             {
                 while (sInput[i].substr(0, 1) == "\t")        //Fjerner evt. mellomrom/tabs som er før verdiene
                 {
@@ -148,7 +155,7 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
                         sInput[i] = sInput[i].substr(pos + 1, iSize);       //Fjerner verdien fra input variabelen
                         break;
 
-                    case 2:     //Andre verdi (Romtype)
+                    case 2:     //Andre verdi (Romtype) KNX
 
                         //pos = sInput[i].find("\t");     //Finner neste understrek posisjonen i stringet hvor verdien vi leser inn ender
                         iSize = ((sInput[i].size()) - pos - 1);     //Bestemmer størelsen på stringet vi lagrer verdien i (posisjon på understrek - 1(understreken))
@@ -173,7 +180,7 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
             }
 
             //Skriver ut navn i console slik at du kan se feil før du går til txt fil
-            cout << "\n\t" << sRom[i] << "\t" << sRomtype563[i] << sRomtypeKnx[i] << "\t\t" << sKommentar[i] << "\n\n";
+            cout << "\n\t" << sRom[i] << "\t" << sRomtype563[i] << "\t" << sRomtypeKnx[i] << "\t" << sKommentar[i] << "\n\n";
         }
         else
             break;

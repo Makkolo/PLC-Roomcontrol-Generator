@@ -134,24 +134,24 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
                         case 4:
                             Knx_dt_Lh_OP(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             xLh = true;
                             break;
 
                         case 5:
                             Knx_dt_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall, xLh);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             break;
 
                         case 6:
                             Knx_dt_Lc_OP(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             xLc = true;
                             break;
 
                         case 7:
                             Knx_dt_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall, xLc);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             break;
 
                         case 8:
@@ -172,7 +172,12 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
                         case 12:
                             Knx_dt_Lu_Cmd(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
+                            break;
+
+                        case 13:
+                            Knx_dt_Opm_Out(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
+                            iKnxOutputs += iAntall;
                             break;
 
                         default:
@@ -207,7 +212,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
     //Lager Funksjonsblokker (kun innganger og utganger. ingen funksjon/styring
     xLh = xLc = false;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < iMax; i++)
     {
         xLh = false, xLc = false;
         iSize = sDatatypes[i].size();
@@ -316,10 +321,6 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                             Knx_Fb_In_Lu_V(sPath, iAntall);
                             break;
 
-                        case 11:
-                            Knx_Fb_In_Lu_Al(sPath, iAntall);
-                            break;
-
                         default:
                             break;
                         }
@@ -372,11 +373,15 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                             break;
 
                         case 9:
-                            //Knx_Fb_Out_Sp(sPath, iAntall);
+                            //Knx_Fb_Out_Sp(sPath, iAntall);        Er ikke ment til å være egen SP out. Bruker bare RT601_SP_CS
                             break;
 
                         case 12:
                             Knx_Fb_Out_Lu_Cmd(sPath, iAntall);
+                            break;
+
+                        case 13:
+                            Knx_Fb_Out_Opm_Out(sPath, iAntall);
                             break;
 
                         default:
@@ -497,8 +502,15 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
             fOutput << "<variable name=\"Interval\">\n" + Tabs(6);
             fOutput << "<type>\n" + Tabs(7);
-            fOutput << "<derived name=\"OSCAT_BASIC.CLK_PRG\" />\n" + Tabs(6);
+            fOutput << "<derived name=\"TON\"/>\n" + Tabs(6);
             fOutput << "</type>\n" + Tabs(5);
+            fOutput << "<initialValue>\n" + Tabs(6);
+            fOutput << "<structValue>\n" + Tabs(7);
+            fOutput << "<value member = \"PT\">\n" + Tabs(8);
+            fOutput << "<simpleValue value = \"TIME#2m0s0ms\"/>\n" + Tabs(7);
+            fOutput << "</value>\n" + Tabs(6);
+            fOutput << "</structValue>\n" + Tabs(6);
+            fOutput << "</initialValue>\n" + Tabs(5);
             fOutput << "</variable>\n" + Tabs(5);
         }
         //Resetter teller
@@ -553,22 +565,22 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
                         case 4:
                             Knx_var_Lh_OP(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             break;
 
                         case 5:
                             Knx_var_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             break;
 
                         case 6:
                             Knx_var_Lc_OP(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             break;
 
                         case 7:
                             Knx_var_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
                             break;
 
                         case 8:
@@ -589,7 +601,12 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
                         case 12:
                             Knx_var_Lu_Cmd(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
-                            iKnxOutputs++;
+                            iKnxOutputs += iAntall;
+                            break;
+
+                        case 13:
+                            Knx_var_Opm_Out(sPath, iMaster, &iKnx, sRom[i], &xComment, iAntall);
+                            iKnxOutputs += iAntall;
                             break;
 
                         default:
@@ -721,6 +738,12 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
                         case 12:
                             Knx_cfc_Lu_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
+                            iLast2 = iLast1;
+                            iLast1 = j;
+                            break;
+
+                        case 13:
+                            Knx_cfc_Opm_Out(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
@@ -986,6 +1009,10 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                             Knx_cfc_Fb_Out_Lu_Cmd(sPath, &iCfc_y, iAntall, &iFb);
                             break;
 
+                        case 13:
+                            Knx_cfc_Fb_Out_Opm_Out(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
                         default:
                             //std::cout << "Error: Cant find output of type" << j << "\n";
                             break;
@@ -1046,6 +1073,10 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                             Knx_cfc_Out_Lu_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
                             break;
 
+                        case 13:
+                            Knx_cfc_Out_Opm_Out(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
                         default:
                             //std::cout << "Error: Cant find out var of type" << j << "\n";
                             break;
@@ -1069,7 +1100,40 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     fOutput << "</pou>\n" + Tabs(1);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    fOutput << "<pou name=\"PRG_360_HVAC\" pouType=\"program\">\n" + Tabs(3);
+    fOutput << "<interface>\n" + Tabs(4);
+    fOutput << "<localVars>\n" + Tabs(3);
+    fOutput << "</localVars>\n" + Tabs(3);
+    fOutput << "</interface>\n" + Tabs(3);
+    fOutput << "<body>\n" + Tabs(2);
+    fOutput << "<ST>" << std::endl << Tabs(1);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">";
 
+    fOutput << sGVL << "." << sAdresseFormat << "_RB001_HVAC:=\n(\n";
+    bool xFirst = true;
+    for (int i = 0; i < iMax && bUsed[i]; i++)
+    {
+        iTemp = stoi(sRomtype563[i].substr(1, 1));
+        for (int j = 1; j <= iTemp; j++)
+        {
+            if (xFirst)
+            {
+                fOutput << "\t" << sGVL << "." << sAdresseFormat << "_" << sRom[i] << ".RB60" << j << "_HVAC";
+                xFirst = false;
+            }
+            else
+                fOutput << " OR\n\t" << sGVL << "." << sAdresseFormat << "_" << sRom[i] << ".RB60" << j << "_HVAC";
+        }
+    }
+    fOutput << "\n);";
+
+    fOutput << "</xhtml>\n";
+    fOutput << "</ST>\n" + Tabs(3);
+    fOutput << "</body>\n" + Tabs(3);
+    fOutput << "<addData/>\n" + Tabs(2);
+    fOutput << "</pou>\n" + Tabs(2);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //GVL
     fOutput << "</pous>\n" + Tabs(1);
     fOutput << "</types>\n" + Tabs(1);
@@ -1079,6 +1143,15 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     fOutput << "<addData>\n" + Tabs(1);
     fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/globalvars\" handleUnknown=\"implementation\">\n" + Tabs(2);
     fOutput << "<globalVars name=\"" << sGVL <</*"\" retain=\"true\" persistent=\"true\*/"\">\n" + Tabs(3);
+
+    fOutput << "<variable name=\"" << sAdresseFormat << "_RB001_HVAC" << "\">\n" + Tabs(4);
+    fOutput << "<type>\n" + Tabs(5);
+    fOutput << "<BOOL />\n" + Tabs(4);
+    fOutput << "</type>\n" + Tabs(4);
+    fOutput << "<documentation>\n" + Tabs(4);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">HVAC signal for PLS</xhtml>\n" + Tabs(3);
+    fOutput << "</documentation>\n" + Tabs(3);
+    fOutput << "</variable>\n" + Tabs(3);
 
     for (int i = 0; i < iMasterMax; i++)
     {
