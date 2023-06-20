@@ -3,6 +3,11 @@ Basic command window program that generates Global variable list, datatypes, gen
 Generates XML file based on the [IEC 61131-3 standard](https://plcopen.org/technical-activities/xml-exchange), and should be compatible with all IEC 61131-3 programs like for example codesys 3.5.
 All programs except for the HVAC program (ST), are generated in CFC for better visualization.
 
+
+**Even if a program supports IEC 61131-3, alignments in cfc programs can sometimes be off. But this is purely visual and does not impact performance.**
+
+**The wagoAppKnx library is used for the KNX program, and the knx program wil only be compatible with wago PLC's. The rest is independent**
+
 ## Generated program structure
 * GVL containing all rooms as datatypes including all content specified by Room content code.
   - Variable format used: GVLname.VariableName_RoomName
@@ -17,7 +22,7 @@ All programs except for the HVAC program (ST), are generated in CFC for better v
 ### .txt file
 Currently uses a txt file as input. The txt file needs to be split with tabs and lines, like this:
 | Global variable list name  | Variable name (before room name) |  |  |  |
-| ----------------------------- | -------------------------------- | ------------------------- | ------------------------------------------------------------- | ------------------- |
+| -------------------------- | -------------------------------- | ------------------------- | ------------------------------------------------------------- | ------------------- |
 | Room  name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
 | Next room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
 | Next room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
