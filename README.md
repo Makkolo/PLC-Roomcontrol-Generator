@@ -1,5 +1,13 @@
 # PLC-Roomcontrol-Generator
-Basic command window program that generates Global variable list, datatypes, generalized roomcontrol function blocks, neccesary functions and KNX-, HVAC-, Roomcontrol program. KNX program uses wagoAppKnx library, Everything else is indeppendent.
+Basic command window program that generates the following:
+* Global variable list containing all rooms
+* Datatypes for all types of rooms used
+* KNX IO program
+* HVAC program for common HVAC signal.
+* Romcontrol program
+* Room control function blocks for each roomtype, with optional generalized roomcontrol program.
+* Neccesary functions to support generalized roomcontrol program, if used.
+
 Generates XML file based on the [IEC 61131-3 standard](https://plcopen.org/technical-activities/xml-exchange), and should be compatible with all IEC 61131-3 programs like for example codesys 3.5.
 All programs except for the HVAC program (ST), are generated in CFC for better visualization.
 
@@ -22,7 +30,7 @@ All programs except for the HVAC program (ST), are generated in CFC for better v
 ### .txt file
 Currently uses a txt file as input. The txt file needs to be split with tabs and lines, like this:
 | Global variable list name  | Variable name (before room name) |  |  |  |
-| -------------------------- | -------------------------------- | ------------------------- | ------------------------------------------------------------- | ------------------- |
+| -------------------------------- | -------------------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
 | Room  name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
 | Next room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
 | Next room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
@@ -31,7 +39,7 @@ and so on...
 ### Content code
 Room content code and room control content code uses a code in the following sequence:
 | Motion | HVAC | Temperature | Co2  | Heating 0-100% | Heating on/off | Cooling 0-100% | Cooling on/off | Setpoint out | Setpoint feedback | Humidifier status (on/off) | Humidifier alarm (Al/Ok) | Humidifier command | Room mode out (Byte) | Humidity |
-| ------ | ---- | ----------- | ---- | -------------- | -------------- | -------------- | -------------- | ------------ | ----------------- | -------------------------- | ------------------------ | ------------------ | -------------------- | -------- |
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
 | 0-9  |  0-9 |  0-9  |  0-9 |  0-9  |  0-9  |  0-9  |  0-9  |  0-9  |  0-9  |  0-9  |  0-9  |  0-9  |  0-9  |  0-9  | 
 
 Each vaulue can be 0-9 and represents the number of devices. If not all values are set, the rest of the sequence will be equal to 0. 
@@ -48,7 +56,7 @@ Row 3 is Room control content code which is used to generate the Room control pr
 3. Run the downloaded file and input the name of the .txt file when asked for.
 4. After succesful generation, the output .xml file is stored in the same folder and the path is copied.
 5. Open the PLC program and find the import button (import PLC open xml in some programs)
-6. CTRL + V and then enter to use the generated xml file.
+6. When prompted to choose import file, CTRL + V and then enter to import the generated xml file.
 7. Choose the content to import, and press import.
 
 ## Example
