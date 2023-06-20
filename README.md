@@ -18,8 +18,10 @@ All programs except for the HVAC program (ST), are generated in CFC for better v
 Currently uses a txt file as input. The txt file needs to be split with tabs and lines, like this:
 | Global variable list name  | Variable name (before room name) |  |  |  |
 | ----------------------------- | -------------------------------- | ------------------------- | ------------------------------------------------------------- | ------------------- |
-| Room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
-| Room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
+| Room  name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
+| Next room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
+| Next room name  | Room content code  | Room control content code | Generate room generalized room control function blocks? (0/1) | Description/comment |
+and so on...
 
 ### Content code
 Room content code and room control content code uses a code in the following sequence:
