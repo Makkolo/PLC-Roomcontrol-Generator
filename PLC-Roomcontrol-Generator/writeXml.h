@@ -16,9 +16,9 @@
 void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std::string(&sRom)[1000], std::string(&sRomtype)[1000], std::string(&sKommentar)[1000], std::string& sAdresseFormat, int const& iMax)
 {
     //Variabel deklarering
-    int iZero = 0, iSpan = 0, iMaster = 1, iKnx = 0, iMasterMax = 1, iKnxOutputs = -1, iCfc_id = 0, iCfc_Order = 0, iCfc_y = 3, iCfc_x = 2, iSize = 0, iAntall = 0, iTemp = 0, iLast1 = 0, iLast2 = 0;
+    int iZero = 0, iSpan = 0, iMaster = 1, iKnx = 0, iMasterMax = 1, iKnxOutputs = -1, iCfc_Id = 0, iCfc_Order = 0, iCfc_y = 3, iCfc_x = 2, iSize = 0, iAntall = 0, iTemp = 0, iLast1 = 0, iLast2 = 0;
     std::string sPreset = "";
-    bool xComment = true, xSpace = false;
+    bool xComment = true, xSpace = false, xRomstyring = false;
 
 
     sPath = sPath + "AutGenImport.xml";
@@ -243,16 +243,16 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     {
         iMaster = k + 1;
         iKnx = 0;
-        iCfc_id = 0;
+        iCfc_Id = 0;
         iCfc_Order = 0;
         iCfc_y = 2;
         iCfc_x = 2;
         //Finner max knx verdi for nåværende linje
-        for (int i = iZero; i < iMax; i++)
+        iTemp = 0;
+        for (int i = 0; i < iMax; i++)
         {
             if (bUsed[i])
             {
-                iTemp = 0;
                 iSize = sRomtype[i].size();
                 for (int j = 0; j < iSize; j++)
                 {
@@ -260,26 +260,12 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                     if (iAntall >= 1)
                         iTemp += iAntall;
                 }
-                if ((iKnx + iTemp) == 255)
-                {
-                    iKnx = 255;
-                    iSpan = i + 1;
-                    break;
-                }
-                else if ((iKnx + iTemp) > 255)
-                {
-                    iSpan = i;
-                    break;
-                }
-                else
-                {
-                    iKnx += iTemp;
-                    iSpan = i + 1;
-                }
             }
             else
                 break;
         }
+
+        iSpan = iTemp / iMasterMax;
         iKnx = 1;
 
 
@@ -335,9 +321,9 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         fOutput.close();
 
         //Skriver lokalvariabler
-        for (int i = iZero; i < iSpan; i++)
+        for (int i = iZero; i < 256; i++)
         {
-            if (bUsed[i])
+            if (bUsed[i] && iKnx <= iSpan)
             {
                 iSize = sRomtype[i].size();
                 xComment = true;
@@ -435,21 +421,21 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         if (iKnxOutputs >= 0)
         {
             Knx_cfc_Interval(sPath, iKnxOutputs);
-            iCfc_id = 22;
+            iCfc_Id = 22;
             iCfc_Order = 7;
         }
-        Knx_cfc_Master(sPath, sGVL, sAdresseFormat, iMaster, &iCfc_Order, &iCfc_id);
+        Knx_cfc_Master(sPath, sGVL, sAdresseFormat, iMaster, &iCfc_Order, &iCfc_Id);
 
         //Resetter Knx variabler brukt i lokal variabel deklarering
         iKnx = 1;
         iKnxOutputs = 0;
 
-
-        for (int i = iZero; i < iSpan; i++)
+        //Lager CFC program
+        for (int i = iZero; i < 256; i++)
         {
-            if (bUsed[i])
+            if (bUsed[i] && iKnx <= iSpan)
             {
-                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_id, iCfc_y);
+                Knx_cfc_comment_a(sPath, sRom[i], &iCfc_Id, iCfc_y);
 
                 iSize = sRomtype[i].size();
 
@@ -461,79 +447,79 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
                         switch (j)
                         {
                         case 0:
-                            Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Rb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 1:
-                            Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 2:
-                            Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Rt(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 3:
-                            Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Ry(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 4:
-                            Knx_cfc_Lh_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
+                            Knx_cfc_Lh_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 5:
-                            Knx_cfc_Lh_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
+                            Knx_cfc_Lh_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 6:
-                            Knx_cfc_Lc_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
+                            Knx_cfc_Lc_OP(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 7:
-                            Knx_cfc_Lc_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
+                            Knx_cfc_Lc_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 8:
-                            Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Sp(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 9:
-                            Knx_cfc_Sp_Fb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Sp_Fb(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 10:
-                            Knx_cfc_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 11:
-                            Knx_cfc_Lu_Al(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
+                            Knx_cfc_Lu_Al(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
 
                         case 12:
-                            Knx_cfc_Lu_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
+                            Knx_cfc_Lu_CMD(sPath, sGVL, sAdresseFormat, sRom[i], iMaster, &iKnx, &iCfc_Order, &iCfc_Id, &iCfc_y, &iCfc_x, &xSpace, &iKnxOutputs, iAntall);
                             iLast2 = iLast1;
                             iLast1 = j;
                             break;
@@ -574,6 +560,313 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         fOutput << "</pou>\n" + Tabs(1);
     }
 
+    //nytt
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Romstyring programm
+    iKnx = iCfc_Id = iCfc_Order = iCfc_y = 0;
+
+
+    //Temp variabler for å telle inputs og outputs. Mer inn/outputs = mer io pluss på y akse
+    int iInOut = 0, iFb = 0, iHeight = 0;
+    bool xLh = false, xLc = false;
+
+
+    fOutput << "<pou name=\"PRG_563_Romstyring" << "\" pouType=\"program\">\n" + Tabs(3);
+    fOutput << "<interface>\n" + Tabs(4);
+    fOutput << "<localVars>\n" + Tabs(5);
+    fOutput.close();
+
+    for (int i = 0; i < iMax; i++)
+    {
+        if (bUsed[i])
+        {
+            iSize = sRomtype[i].size();
+            if (iSize > 2)
+            {
+                Knx_var_Romstyring_Fb(sPath, sRom[i], sRomtype[i]);
+            }
+        }
+        else
+            break;
+    }
+
+    fOutput.open(sPath, std::ios::app);
+    fOutput << "</localVars>\n" + Tabs(3);
+    fOutput << "</interface>\n" + Tabs(3);
+    fOutput << "<body>\n" + Tabs(4);
+    fOutput << "<ST>\n" << Tabs(5);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\" />\n" << Tabs(5);
+    fOutput << "</ST>\n" << Tabs(4);
+    fOutput << "<addData>\n" << Tabs(5);
+    fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfc\" handleUnknown=\"implementation\">\n" << Tabs(4);
+    fOutput << "<CFC>\n\t";
+    fOutput.close();
+
+
+    for (int i = 0; i < iMax; i++)
+    {
+        xLh = xLc = false;
+        if (bUsed[i])
+        {
+            iSize = sRomtype[i].size();
+            if (iSize > 2)
+            {
+                //comment
+                Knx_cfc_Fb_Comment(sPath, sRom[i], &iCfc_Id, &iCfc_y);
+
+
+                //Inputs
+                for (int j = 0; j < iSize; j++)
+                {
+                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    if (iAntall > 0)
+                    {
+                        switch (j)
+                        {
+                        case 1:
+                            Knx_cfc_In_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            break;
+
+                        case 2:
+                            Knx_cfc_In_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            break;
+
+                        case 3:
+                            Knx_cfc_In_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            break;
+
+                        case 4:
+                            Knx_cfc_In_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            xLh = true;
+                            break;
+
+                        case 5:
+                            if (!xLh)
+                                Knx_cfc_In_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            break;
+
+                        case 6:
+                            Knx_cfc_In_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            xLc = true;
+                            break;
+
+                        case 7:
+                            if (!xLc)
+                                Knx_cfc_In_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            break;
+
+                        case 10:
+                            Knx_cfc_In_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            break;
+
+                        case 11:
+                            Knx_cfc_In_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                            break;
+
+                        default:
+                            std::cout << "Error: Cant find In var of type" << j << "\n";
+                            break;
+                        }
+                    }
+                }
+
+                xLh = xLc = false;
+
+                //Lager funksjonsblokk
+                fOutput.open(sPath, std::ios::app);
+                fOutput << "<block localId=\"" << (0 + iCfc_Id) << "\" executionOrderId=\"" << (0 + iCfc_Order) << "\" typeName=\"fbRomtype_" << sRomtype[i] << "\" instanceName=\"Rom_" << sRom[i] << "\">\n\t";
+                fOutput << "<position x=\"" << (26) << "\" y=\"" << (28 + iCfc_y) << "\" />\n\t";
+                fOutput << "<inputVariables>\n\t";
+                iCfc_Id++;
+                iCfc_Order++;
+                fOutput.close();
+
+
+                //FB inputs
+                for (int j = 0; j < iSize; j++)
+                {
+                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    if (iAntall > 0)
+                    {
+                        switch (j)
+                        {
+                        case 1:
+                            Knx_cfc_In_Fb_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            break;
+
+                        case 2:
+                            Knx_cfc_In_Fb_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            break;
+
+                        case 3:
+                            Knx_cfc_In_Fb_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            break;
+
+                        case 4:
+
+                            Knx_cfc_In_Fb_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            xLh = true;
+                            break;
+
+                        case 5:
+                            if (!xLh)
+                                Knx_cfc_In_Fb_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            break;
+
+                        case 6:
+                            Knx_cfc_In_Fb_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            xLc = true;
+                            break;
+
+                        case 7:
+                            if (!xLc)
+                                Knx_cfc_In_Fb_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            break;
+
+                        case 10:
+                            Knx_cfc_In_Fb_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            break;
+
+                        case 11:
+                            Knx_cfc_In_Fb_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                            break;
+                        default:
+                            std::cout << "Error: Cant find input of type" << j << "\n";
+                            break;
+                        }
+                    }
+                }
+
+
+                //Ender fb inputs, starter outputs
+                fOutput.open(sPath, std::ios::app);
+                fOutput << "</inputVariables>\n\t";
+                fOutput << "<inOutVariables/>\n\t";
+                fOutput << "<outputVariables>\n\t";
+                fOutput.close();
+
+                iHeight = iFb;
+
+                //FB outputs
+                iInOut = iFb = 0;
+                for (int j = 0; j < iSize; j++)
+                {
+                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    if (iAntall > 0)
+                    {
+                        switch (j)
+                        {
+                        case 2:
+                            Knx_cfc_Fb_Out_Rt(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
+                        case 3:
+                            Knx_cfc_Fb_Out_Ry_Op(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
+                        case 4:
+                            Knx_cfc_Fb_Out_Lh_Op(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
+                        case 5:
+                            Knx_cfc_Fb_Out_Lh_Cmd(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
+                        case 6:
+                            Knx_cfc_Fb_Out_Lc_Op(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
+                        case 7:
+                            Knx_cfc_Fb_Out_Lc_Cmd(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
+                        case 12:
+                            Knx_cfc_Fb_Out_Lu_Cmd(sPath, &iCfc_y, iAntall, &iFb);
+                            break;
+
+                        default:
+                            std::cout << "Error: Cant find output of type" << j << "\n";
+                            break;
+                        }
+                    }
+                }
+
+                if (iFb > iHeight)
+                    iHeight = iFb;
+
+                //Ender funksjonsblokk
+                fOutput.open(sPath, std::ios::app);
+                fOutput << "</outputVariables>\n\t";
+                fOutput << "<addData>\n\t";
+                fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfccalltype\" handleUnknown=\"implementation\">\n\t";
+                fOutput << "<CallType xmlns=\"\">functionblock</CallType>\n\t";
+                fOutput << "</data>\n\t";
+                fOutput << "</addData>\n\t";
+                fOutput << "</block>\n\t";
+                fOutput.close();
+
+
+
+                //Outputs
+                iInOut = 0;
+                for (int j = 0; j < iSize; j++)
+                {
+                    iAntall = stoi(sRomtype[i].substr(j, 1));
+                    if (iAntall > 0)
+                    {
+                        switch (j)
+                        {
+                        case 2:
+                            Knx_cfc_Out_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
+                        case 3:
+                            Knx_cfc_Out_Ry_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
+                        case 4:
+                            Knx_cfc_Out_Lh_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
+                        case 5:
+                            Knx_cfc_Out_Lh_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
+                        case 6:
+                            Knx_cfc_Out_Lc_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
+                        case 7:
+                            Knx_cfc_Out_Lc_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
+                        case 12:
+                            Knx_cfc_Out_Lu_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                            break;
+
+                        default:
+                            std::cout << "Error: Cant find out var of type" << j << "\n";
+                            break;
+                        }
+                    }
+                }
+                iCfc_y += 14 + iHeight;;
+                iInOut = iFb = 0;
+            }
+        }
+        else
+            break;
+    }
+    fOutput.open(sPath, std::ios::app);
+
+    fOutput << "</CFC>\n" + Tabs(1);
+    fOutput << "</data>\n" + Tabs(1);
+    fOutput << "</addData>\n" + Tabs(1);
+    fOutput << "</body>\n" + Tabs(1);
+    fOutput << "<addData />\n" + Tabs(1);
+    fOutput << "</pou>\n" + Tabs(1);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //GVL
     fOutput << "</pous>\n" + Tabs(1);
