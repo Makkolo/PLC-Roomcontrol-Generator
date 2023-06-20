@@ -217,7 +217,7 @@ int main() //Starter med å lokalisere seg selv, og får derfor sin egen plasserin
     GetModuleFileNameW(NULL, wcPath, MAX_PATH);     //Lagrer sin egen lokasjon i path variabelen
     wstring wsPath(&wcPath[0]);     //convert to wstring
     string sPath(wsPath.begin(), wsPath.end());     //convert to string.
-    size_t pos = sPath.find("KNX_CFC_Autogen_10.exe");     //Lokaliserer hvor i pathen selve exe filen er
+    size_t pos = sPath.find_last_of("\\") + 1;     //Lokaliserer hvor i pathen selve exe filen er
     sPath2 = sPath.substr(0, pos);      //Lager en ny variabel hvor det lagres en ny variabel hvor det lagres lokasjonen til mappen som exe filen er lagret i (path - exe fil)
     //cout << sPath2 << "\n";       test
 
