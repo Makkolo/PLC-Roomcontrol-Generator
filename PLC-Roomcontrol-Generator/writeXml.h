@@ -66,7 +66,128 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     fOutput << "</addData>\n\t";
     fOutput << "</contentHeader>\n\t";
     fOutput << "<types>\n\t\t";
-    fOutput << "<dataTypes />\n\t\t";
+    fOutput << "<dataTypes>\n\t\t";
+
+
+    std::string sDatatypes[100];
+    bool xUnik = false;
+
+    //initializer array
+    for (int i = 0; i < 100; i++)
+    {
+        sDatatypes[i] = "";
+    }
+
+    //Skriver datatyper som er brukt
+    for (int i = 0; i < iMax; i++)
+    {
+        if (bUsed[i])
+        {
+            xUnik = true;
+            for (int j = 0; j < 100; j++)
+            {
+                if (sRomtype[i] == sDatatypes[j])
+                {
+                    xUnik = false;
+                    break;
+                }
+            }
+            if (xUnik)
+            {
+                if (fOutput.is_open() == false)
+                    fOutput.open(sPath, std::ios::app);
+
+                fOutput << "<dataType name=\"dtRomtype_" << sRomtype[i] << "\">\n" + Tabs(3);
+                fOutput << "<baseType>\n" + Tabs(4);
+                fOutput << "<struct>\n" + Tabs(5);
+
+                fOutput.close();
+
+                for (int j = 0; j < 10; j++)
+                {
+                    xComment = true;
+                    if (j < sRomtype[i].size() && (sRomtype[i].substr(j, 1) == "1" || sRomtype[i].substr(j, 1) == "2"))
+                    {
+                        switch (j)
+                        {
+                        case 0:
+                            Knx_dt_Rb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 1:
+                            Knx_dt_Hvac(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 2:
+                            Knx_dt_Rt(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 3:
+                            Knx_dt_Ry(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 4:
+                            Knx_dt_Lh_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 5:
+                            Knx_dt_Lh_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 6:
+                            Knx_dt_Lc_OP(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 7:
+                            Knx_dt_Lc_CMD(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            iKnxOutputs += 1;
+                            break;
+
+                        case 8:
+                            Knx_dt_Sp(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        case 9:
+                            Knx_dt_Sp_Fb(sPath, iMaster, &iKnx, sRom[i], &xComment);
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+                fOutput.open(sPath, std::ios::app);
+
+                fOutput << "</struct>\n" + Tabs(3);
+                fOutput << "</baseType>\n" + Tabs(3);
+                fOutput << "<addData />\n" + Tabs(2);
+                fOutput << "</dataType>\n" + Tabs(1);
+
+                for (int j = 0; j < 100; j++)
+                {
+                    if (sDatatypes[j] == "")
+                    {
+                        sDatatypes[j] = sRomtype[i];
+                        break;
+                    }
+                }
+            }
+        }
+        else
+            break;
+    }
+
+
+
+
+
+
+
+
+    fOutput << "</dataTypes>\n\t\t";
     fOutput << "<pous>\n\t\t";
 
     //Finner ut hvor mange knx linjer som trengs

@@ -9,6 +9,312 @@
 
 
 
+//Datatyper
+void Knx_dt_Rb(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    fOutput << "<variable name=\"RB601_V\">\n\t";
+
+    fOutput << "<type>\n\t";
+    fOutput << "<BOOL />\n\t";
+    fOutput << "</type>\n\t";
+
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Bevegelse</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+
+void Knx_dt_Hvac(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    fOutput << "<variable name=\"RB601_HVAC\">\n\t";
+
+    fOutput << "<type>\n\t";
+    fOutput << "<BOOL />\n\t";
+    fOutput << "</type>\n\t";
+
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">HVAC signal</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+
+void Knx_dt_Rt(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    //CT
+    fOutput << "<variable name=\"RT601_CT\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Rom temperatur</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //SP D
+    fOutput << "<variable name=\"RT601_SP_D\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Temperatur SP dag/komfort</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //SP S
+    fOutput << "<variable name=\"RT601_SP_S\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Temperatur SP standby</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //SP N
+    fOutput << "<variable name=\"RT601_SP_N\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Temperatur SP nattsenk</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //SP F
+    fOutput << "<variable name=\"RT601_SP_F\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Temperatur SP frostsikring</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //SP CS
+    fOutput << "<variable name=\"RT601_CS\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Aktivt temperatur SP</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //OPM
+    fOutput << "<variable name=\"OPM\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Rom modus</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //OPM CV
+    fOutput << "<variable name=\"OPM_CV\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Rom modus verdi</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+void Knx_dt_Ry(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    //CV
+    fOutput << "<variable name=\"RY601_CV\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Co2 Nivaa</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //SP
+    fOutput << "<variable name=\"RY601_SP\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Co2 SP</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //OP
+    fOutput << "<variable name=\"RY601_OP\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Co2 paadrag</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+void Knx_dt_Lh_OP(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    //OP
+    fOutput << "<variable name=\"LH601_OP\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Varmepaadrag</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //Force
+    fOutput << "<variable name=\"SB601_MAN\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Varmepaadrag force</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+void Knx_dt_Lh_CMD(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    fOutput << "<variable name=\"LH601_CMD\">\n\t";
+
+    fOutput << "<type>\n\t";
+    fOutput << "<BOOL />\n\t";
+    fOutput << "</type>\n\t";
+
+
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">LH601_CMD</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+void Knx_dt_Lc_OP(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    fOutput << "<variable name=\"LC601_OP\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">LC601_OP</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //Force
+    fOutput << "<variable name=\"LC601_MAN\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">LC601 Force</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+void Knx_dt_Lc_CMD(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    fOutput << "<variable name=\"LC601_CMD\">\n\t";
+
+    fOutput << "<type>\n\t";
+    fOutput << "<BOOL />\n\t";
+    fOutput << "</type>\n\t";
+
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">LC601_CMD</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+void Knx_dt_Sp(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    fOutput << "<variable name=\"RT601_SP\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Temperatur SP feedback</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+void Knx_dt_Sp_Fb(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
+{
+    std::ofstream fOutput(sPath, std::ios::app);
+
+    //SP FB
+    fOutput << "<variable name=\"RT601_SP_FB\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Temperatur SP</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+    //SP CS
+    fOutput << "<variable name=\"RT601_SP_IN\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<REAL />\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "<documentation>\n" + Tabs(7);
+    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\">Temperatur SP lokalt panel</xhtml>\n" + Tabs(6);
+    fOutput << "</documentation>\n" + Tabs(5);
+    fOutput << "</variable>\n\t";
+
+    fOutput.close();
+    return;
+}
+
+
+
+
+
+
+
+
+
+
 //Lokal variabler
 void Knx_var_Rb(std::string& sPath, int& iMaster, int* iKnx, std::string& sRom, bool* xComment)
 {
