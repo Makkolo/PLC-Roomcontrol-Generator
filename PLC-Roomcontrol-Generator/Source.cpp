@@ -24,6 +24,7 @@ string sAdresseFormat = "STLV80_A_563";
 string sRom[iMax];      //Navn på rom
 string sRomtype563[iMax];     //Romtype brukt til romstyring
 string sRomtypeKnx[iMax];     //Romtype brukt i KNX
+string sFb[iMax];      //Bestemmer om styring i fb skal genereres
 string sKommentar[iMax];      //Adressen til VAV-en
 
 
@@ -54,6 +55,7 @@ void OpenFile()
     cout << "File found\n";
 
     fInput.close();     //Lukker fil som vi leste fra
+    return;
 }
 void Read() //Spør etter navn på fil som skal leses, og leser deretter inn hver linje og lagrer dem i egne variabler.
 {
@@ -80,6 +82,7 @@ void Read() //Spør etter navn på fil som skal leses, og leser deretter inn hver 
             bUsed[i] = true;        //markerer Input som brukt (for å ungå å prossesere og skrive ut mer verdier enn vi trenger)
     }
     fInput.close();     //Lukker fil som vi leste fra
+    return;
 }
 
 void Prossesering() //Bruker Input variablene og deler dem opp i sepparate variabler for ventil navn og serie nr. Bytter også + til -
@@ -121,7 +124,7 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
             iSize = 0;
 
 
-            for (int j = 0; j < 4; j++)      //Går gjennom og deler opp etter Rom, kommentar, romtype
+            for (int j = 0; j < 5; j++)      //Går gjennom og deler opp etter Rom, kommentar, romtype
             {
                 while (sInput[i].substr(0, 1) == "\t")        //Fjerner evt. mellomrom/tabs som er før verdiene
                 {
@@ -132,11 +135,20 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
 
                 pos = sInput[i].find("\t");
 
+                if (sInput[i].find(" ") < pos)
+                    pos = sInput[i].find(" ");
+
                 if (pos < 1)        //Melder om feil og avbryter hvis mellomrom(før verdier) ikke ble fjernet
                 {
-                    cout << "\n\nError: line 128.\n\n";
-                    abort();
+                    if (j < 3)
+                    {
+                        cout << "\n\nError: line 128.\n\n";
+                        abort();
+                    }
+                    else
+                        break;
                 }
+
                 else
                 {
                     iSize = ((sInput[i].size()) - pos - 1);     //Bestemmer størelsen på stringet vi lagrer verdien i (posisjon på mellomrom - 1(mellomromet))
@@ -166,7 +178,15 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
                         sInput[i] = sInput[i].substr(pos + 1, iSize);       //Fjerner verdien fra input variabelen
                         break;
 
-                    case 3:     //Tredje verdi (Kommentar)
+                    case 3:     //Romstyring fb
+
+                        //pos = sInput[i].find("\t");     //Finner neste understrek posisjonen i stringet hvor verdien vi leser inn ender
+                        iSize = ((sInput[i].size()) - pos - 1);     //Bestemmer størelsen på stringet vi lagrer verdien i (posisjon på understrek - 1(understreken))
+                        sFb[i] = (sInput[i].substr(0, pos));       //Lagrer verdi i Tilhørende variabel
+                        sInput[i] = sInput[i].substr(pos + 1, iSize);       //Fjerner verdien fra input variabelen
+                        break;
+
+                    case 4:     //Tredje verdi (Kommentar)
 
                         //pos = sInput[i].find("\t");     //Finner neste understrek posisjonen i stringet hvor verdien vi leser inn ender
                         iSize = ((sInput[i].size()) - pos - 1);     //Bestemmer størelsen på stringet vi lagrer verdien i (posisjon på understrek - 1(understreken))
@@ -175,7 +195,7 @@ void Prossesering() //Bruker Input variablene og deler dem opp i sepparate varia
                         break;
 
                     default:
-                        std::cout << "Error Rom " << sRom[i] << " Not used";
+                        std::cout << "Error Rom " << sRom[i] << " (feil format)\n";
                         break;
                     }
                 }
@@ -197,7 +217,7 @@ int main() //Starter med å lokalisere seg selv, og får derfor sin egen plasserin
     GetModuleFileNameW(NULL, wcPath, MAX_PATH);     //Lagrer sin egen lokasjon i path variabelen
     wstring wsPath(&wcPath[0]);     //convert to wstring
     string sPath(wsPath.begin(), wsPath.end());     //convert to string.
-    size_t pos = sPath.find_last_of("\\") + 1;     //Lokaliserer hvor i pathen selve exe filen er
+    size_t pos = sPath.find("KNX_CFC_Autogen_10.exe");     //Lokaliserer hvor i pathen selve exe filen er
     sPath2 = sPath.substr(0, pos);      //Lager en ny variabel hvor det lagres en ny variabel hvor det lagres lokasjonen til mappen som exe filen er lagret i (path - exe fil)
     //cout << sPath2 << "\n";       test
 
@@ -207,7 +227,7 @@ int main() //Starter med å lokalisere seg selv, og får derfor sin egen plasserin
 
     Read();
     Prossesering();
-    WriteXML_KNX(sPath2, bUsed, sGVL, sRom, sRomtype563, sRomtypeKnx, sKommentar, sAdresseFormat, iMax);
+    WriteXML_KNX(sPath2, bUsed, sGVL, sRom, sRomtype563, sRomtypeKnx, sFb, sKommentar, sAdresseFormat, iMax);       //ligger i mdhl_knx_v10
 
     auto tStopp = std::chrono::high_resolution_clock::now();
     auto tRuntime = std::chrono::duration_cast<std::chrono::milliseconds>(tStopp - tStart);
