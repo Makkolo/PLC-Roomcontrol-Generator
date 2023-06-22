@@ -6060,9 +6060,9 @@ void Knx_cfc_Master(std::string& sPath, std::string& sGvl, std::string& sAdresse
     fOutput << "</connectionPointOut>\n\t";
 
     if (iMaster == 1)
-        fOutput << "<expression>IoConfig_Globals.KNX_EIB_TP1_Interface</expression>\n\t";
+        fOutput << "<expression>_753_646_24</expression>\n\t";
     else
-        fOutput << "<expression>IoConfig_Globals.KNX_EIB_TP1_Interface_" << (iMaster - 1) << "</expression>\n\t";
+        fOutput << "<expression>_753_646_24_" << (iMaster - 1) << "</expression>\n\t";
 
     fOutput << "</inVariable>\n\t";
 
@@ -6071,9 +6071,9 @@ void Knx_cfc_Master(std::string& sPath, std::string& sGvl, std::string& sAdresse
     fOutput << "<connectionPointIn>\n\t";
 
     if (iMaster == 1)
-        fOutput << "<connection refLocalId = \"" << (2 + *iCfc_Id) << "\" formalParameter = \"IoConfig_Globals.KNX_EIB_TP1_Interface\"/>\n\t";
+        fOutput << "<connection refLocalId = \"" << (2 + *iCfc_Id) << "\" formalParameter = \"_753_646_24\"/>\n\t";
     else
-        fOutput << "<connection refLocalId = \"" << (2 + *iCfc_Id) << "\" formalParameter = \"IoConfig_Globals.KNX_EIB_TP1_Interface_" << (iMaster - 1) << "\"/>\n\t";
+        fOutput << "<connection refLocalId = \"" << (2 + *iCfc_Id) << "\" formalParameter = \"_753_646_24_" << (iMaster - 1) << "\"/>\n\t";
 
 
     fOutput << "</connectionPointIn>\n\t";

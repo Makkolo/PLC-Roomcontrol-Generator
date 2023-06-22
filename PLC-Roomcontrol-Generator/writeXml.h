@@ -39,7 +39,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
 
     if (fOutput.is_open() == false)
     {
-        std::cout << "Error: cant open outputfile.\nLine: 908 mdhl.h";
+        std::cout << "Error: cant open outputfile " << sPath << "\nAllready open in another program?\nLine: 42 writeXml.h\n";
         Sleep(10000);
         abort();
     }
@@ -554,7 +554,11 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
         if (fOutput.is_open() == false)
             fOutput.open(sPath, std::ios::app);
 
-        fOutput << "<pou name=\"PRG_KNX_563_" << iMaster << "\" pouType=\"program\">\n" + Tabs(3);
+        if (iMaster == 1)
+            fOutput << "<pou name=\"PRG_KNX_563\" pouType=\"program\">\n" + Tabs(3);
+        else
+            fOutput << "<pou name=\"PRG_KNX_563_" << iMaster << "\" pouType=\"program\">\n" + Tabs(3);
+
         fOutput << "<interface>\n" + Tabs(4);
         fOutput << "<localVars>\n" + Tabs(5);
 
@@ -874,337 +878,346 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     //nytt
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Romstyring programm
-    iKnx = iCfc_Id = iCfc_Order = iCfc_y = 0;
-    iCfc_y = -18;
-
-
-    //Temp variabler for å telle inputs og outputs. Mer inn/outputs = mer io pluss på y akse
-    int iInOut = 0, iFb = 0, iHeight = 0;
-    xLh = xLc = false;
-
-
-    fOutput << "<pou name=\"PRG_563_Romstyring" << "\" pouType=\"program\">\n" + Tabs(3);
-    fOutput << "<interface>\n" + Tabs(4);
-    fOutput << "<localVars>\n" + Tabs(5);
-    fOutput.close();
-
-    for (int i = 0; i < iMax; i++)
+    bool genRoomCtrl = false;
+    for (int i = 0; i < 100 && sDatatypes[i] != ""; i++)
     {
-        if (bUsed[i])
-        {
-            iSize = sRomtype563[i].size();
-            if (iSize > 3)
-            {
-                Knx_var_Romstyring_Fb(sPath, sRom[i], sRomtype563[i]);
-            }
-        }
-        else
-            break;
+        if (sDatatypes[i].size() > 3)
+            genRoomCtrl = true;
     }
 
-    fOutput.open(sPath, std::ios::app);
-    fOutput << "</localVars>\n" + Tabs(3);
-    fOutput << "</interface>\n" + Tabs(3);
-    fOutput << "<body>\n" + Tabs(4);
-    fOutput << "<ST>\n" << Tabs(5);
-    fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\" />\n" << Tabs(5);
-    fOutput << "</ST>\n" << Tabs(4);
-    fOutput << "<addData>\n" << Tabs(5);
-    fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfc\" handleUnknown=\"implementation\">\n" << Tabs(4);
-    fOutput << "<CFC>\n\t";
-    fOutput.close();
-
-
-    for (int i = 0; i < iMax; i++)
+    if (genRoomCtrl)
     {
+        iKnx = iCfc_Id = iCfc_Order = iCfc_y = 0;
+        iCfc_y = -18;
+
+
+        //Temp variabler for å telle inputs og outputs. Mer inn/outputs = mer io pluss på y akse
+        int iInOut = 0, iFb = 0, iHeight = 0;
         xLh = xLc = false;
-        if (bUsed[i])
+
+
+        fOutput << "<pou name=\"PRG_563_Romstyring" << "\" pouType=\"program\">\n" + Tabs(3);
+        fOutput << "<interface>\n" + Tabs(4);
+        fOutput << "<localVars>\n" + Tabs(5);
+        fOutput.close();
+
+        for (int i = 0; i < iMax; i++)
         {
-            iSize = sRomtype563[i].size();
-            if (iSize > 3)
+            if (bUsed[i])
             {
-                //comment
-                Knx_cfc_Fb_Comment(sPath, sRom[i], &iCfc_Id, &iCfc_y);
-
-
-                //Inputs
-                for (int j = 0; j < iSize; j++)
+                iSize = sRomtype563[i].size();
+                if (iSize > 3)
                 {
-                    iAntall = stoi(sRomtype563[i].substr(j, 1));
-                    if (iAntall > 0)
+                    Knx_var_Romstyring_Fb(sPath, sRom[i], sRomtype563[i]);
+                }
+            }
+            else
+                break;
+        }
+
+        fOutput.open(sPath, std::ios::app);
+        fOutput << "</localVars>\n" + Tabs(3);
+        fOutput << "</interface>\n" + Tabs(3);
+        fOutput << "<body>\n" + Tabs(4);
+        fOutput << "<ST>\n" << Tabs(5);
+        fOutput << "<xhtml xmlns=\"http://www.w3.org/1999/xhtml\" />\n" << Tabs(5);
+        fOutput << "</ST>\n" << Tabs(4);
+        fOutput << "<addData>\n" << Tabs(5);
+        fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfc\" handleUnknown=\"implementation\">\n" << Tabs(4);
+        fOutput << "<CFC>\n\t";
+        fOutput.close();
+
+
+        for (int i = 0; i < iMax; i++)
+        {
+            xLh = xLc = false;
+            if (bUsed[i])
+            {
+                iSize = sRomtype563[i].size();
+                if (iSize > 3)
+                {
+                    //comment
+                    Knx_cfc_Fb_Comment(sPath, sRom[i], &iCfc_Id, &iCfc_y);
+
+
+                    //Inputs
+                    for (int j = 0; j < iSize; j++)
                     {
-                        switch (j)
+                        iAntall = stoi(sRomtype563[i].substr(j, 1));
+                        if (iAntall > 0)
                         {
-                        case 1:
-                            Knx_cfc_In_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            break;
+                            switch (j)
+                            {
+                            case 1:
+                                Knx_cfc_In_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                                break;
 
-                        case 2:
-                            Knx_cfc_In_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut, sFb[i]);
-                            break;
+                            case 2:
+                                Knx_cfc_In_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut, sFb[i]);
+                                break;
 
-                        case 3:
-                            Knx_cfc_In_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut, sFb[i]);
-                            break;
+                            case 3:
+                                Knx_cfc_In_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut, sFb[i]);
+                                break;
 
-                        case 4:
-                            Knx_cfc_In_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            xLh = true;
-                            break;
-
-                        case 5:
-                            if (!xLh)
+                            case 4:
                                 Knx_cfc_In_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            break;
+                                xLh = true;
+                                break;
 
-                        case 6:
-                            Knx_cfc_In_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            xLc = true;
-                            break;
+                            case 5:
+                                if (!xLh)
+                                    Knx_cfc_In_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                                break;
 
-                        case 7:
-                            if (!xLc)
+                            case 6:
                                 Knx_cfc_In_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            break;
+                                xLc = true;
+                                break;
 
-                        case 9:
-                            Knx_cfc_In_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            break;
+                            case 7:
+                                if (!xLc)
+                                    Knx_cfc_In_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                                break;
 
-                        case 10:
-                            Knx_cfc_In_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            break;
+                            case 9:
+                                Knx_cfc_In_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                                break;
 
-                        case 14:
-                            Knx_cfc_In_Rh_Cv(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
-                            break;
+                            case 10:
+                                Knx_cfc_In_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                                break;
 
-                        default:
-                            //std::cout << "Error: Cant find In var of type" << j << "\n";
-                            break;
+                            case 14:
+                                Knx_cfc_In_Rh_Cv(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Id, &iCfc_y, iAntall, &iInOut);
+                                break;
+
+                            default:
+                                //std::cout << "Error: Cant find In var of type" << j << "\n";
+                                break;
+                            }
                         }
                     }
-                }
 
-                xLh = xLc = false;
+                    xLh = xLc = false;
 
-                //Lager funksjonsblokk
-                fOutput.open(sPath, std::ios::app);
-                fOutput << "<block localId=\"" << (0 + iCfc_Id) << "\" executionOrderId=\"" << (0 + iCfc_Order) << "\" typeName=\"fbRomtype_" << sRomtype563[i] << "\" instanceName=\"Rom_" << sRom[i] << "\">\n\t";
-                fOutput << "<position x=\"" << (26) << "\" y=\"" << (28 + iCfc_y) << "\" />\n\t";
-                fOutput << "<inputVariables>\n\t";
-                iCfc_Id++;
-                iCfc_Order++;
-                fOutput.close();
+                    //Lager funksjonsblokk
+                    fOutput.open(sPath, std::ios::app);
+                    fOutput << "<block localId=\"" << (0 + iCfc_Id) << "\" executionOrderId=\"" << (0 + iCfc_Order) << "\" typeName=\"fbRomtype_" << sRomtype563[i] << "\" instanceName=\"Rom_" << sRom[i] << "\">\n\t";
+                    fOutput << "<position x=\"" << (26) << "\" y=\"" << (28 + iCfc_y) << "\" />\n\t";
+                    fOutput << "<inputVariables>\n\t";
+                    iCfc_Id++;
+                    iCfc_Order++;
+                    fOutput.close();
 
 
-                //FB inputs
-                for (int j = 0; j < iSize; j++)
-                {
-                    iAntall = stoi(sRomtype563[i].substr(j, 1));
-                    int iAntallT = (stoi(sRomtype563[i].substr(2, 1)));      //Antall temperatur følere
-                    if (iAntall > 0)
+                    //FB inputs
+                    for (int j = 0; j < iSize; j++)
                     {
-                        switch (j)
+                        iAntall = stoi(sRomtype563[i].substr(j, 1));
+                        int iAntallT = (stoi(sRomtype563[i].substr(2, 1)));      //Antall temperatur følere
+                        if (iAntall > 0)
                         {
-                        case 1:
-                            Knx_cfc_In_Fb_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
-                            break;
+                            switch (j)
+                            {
+                            case 1:
+                                Knx_cfc_In_Fb_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                                break;
 
-                        case 2:
-                            Knx_cfc_In_Fb_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i]);
-                            break;
+                            case 2:
+                                Knx_cfc_In_Fb_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i]);
+                                break;
 
-                        case 3:
-                            Knx_cfc_In_Fb_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i]);
-                            break;
+                            case 3:
+                                Knx_cfc_In_Fb_Ry(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i]);
+                                break;
 
-                        case 4:
+                            case 4:
 
-                            Knx_cfc_In_Fb_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i], iAntallT);
-                            xLh = true;
-                            break;
-
-                        case 5:
-                            if (!xLh)
                                 Knx_cfc_In_Fb_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i], iAntallT);
-                            break;
+                                xLh = true;
+                                break;
 
-                        case 6:
-                            Knx_cfc_In_Fb_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i], iAntallT);
-                            xLc = true;
-                            break;
+                            case 5:
+                                if (!xLh)
+                                    Knx_cfc_In_Fb_Lh(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i], iAntallT);
+                                break;
 
-                        case 7:
-                            if (!xLc)
+                            case 6:
                                 Knx_cfc_In_Fb_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i], iAntallT);
-                            break;
+                                xLc = true;
+                                break;
 
-                        case 9:
-                            Knx_cfc_In_Fb_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
-                            break;
+                            case 7:
+                                if (!xLc)
+                                    Knx_cfc_In_Fb_Lc(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb, sFb[i], iAntallT);
+                                break;
 
-                        case 10:
-                            Knx_cfc_In_Fb_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
-                            break;
+                            case 9:
+                                Knx_cfc_In_Fb_Sp(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                                break;
 
-                        case 14:
-                            Knx_cfc_In_Fb_Rh_Cv(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
-                            break;
-                        default:
-                            //std::cout << "Error: Cant find input of type" << j << "\n";
-                            break;
+                            case 10:
+                                Knx_cfc_In_Fb_Lu_V(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                                break;
+
+                            case 14:
+                                Knx_cfc_In_Fb_Rh_Cv(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, iInOut, &iFb);
+                                break;
+                            default:
+                                //std::cout << "Error: Cant find input of type" << j << "\n";
+                                break;
+                            }
                         }
                     }
-                }
 
 
-                //Ender fb inputs, starter outputs
-                fOutput.open(sPath, std::ios::app);
-                fOutput << "</inputVariables>\n\t";
-                fOutput << "<inOutVariables/>\n\t";
-                fOutput << "<outputVariables>\n\t";
-                fOutput.close();
+                    //Ender fb inputs, starter outputs
+                    fOutput.open(sPath, std::ios::app);
+                    fOutput << "</inputVariables>\n\t";
+                    fOutput << "<inOutVariables/>\n\t";
+                    fOutput << "<outputVariables>\n\t";
+                    fOutput.close();
 
-                iHeight = iFb;
-
-                //FB outputs
-                iInOut = iFb = 0;
-                for (int j = 0; j < iSize; j++)
-                {
-                    iAntall = stoi(sRomtype563[i].substr(j, 1));
-                    if (iAntall > 0)
-                    {
-                        switch (j)
-                        {
-                        case 1:
-                            if (sFb[i] == "1" && iAntall > 1)
-                                Knx_cfc_Fb_Out_Hvac(sPath, &iCfc_y, iAntall, &iFb);
-                            break;
-
-                        case 2:
-                            Knx_cfc_Fb_Out_Rt(sPath, &iCfc_y, iAntall, &iFb, sFb[i]);
-                            break;
-
-                        case 3:
-                            Knx_cfc_Fb_Out_Ry_Op(sPath, &iCfc_y, iAntall, &iFb, sFb[i]);
-                            break;
-
-                        case 4:
-                            Knx_cfc_Fb_Out_Lh_Op(sPath, &iCfc_y, iAntall, &iFb);
-                            break;
-
-                        case 5:
-                            Knx_cfc_Fb_Out_Lh_Cmd(sPath, &iCfc_y, iAntall, &iFb);
-                            break;
-
-                        case 6:
-                            Knx_cfc_Fb_Out_Lc_Op(sPath, &iCfc_y, iAntall, &iFb);
-                            break;
-
-                        case 7:
-                            Knx_cfc_Fb_Out_Lc_Cmd(sPath, &iCfc_y, iAntall, &iFb);
-                            break;
-
-                        case 12:
-                            Knx_cfc_Fb_Out_Lu_Cmd(sPath, &iCfc_y, iAntall, &iFb);
-                            break;
-
-                        case 13:
-                            Knx_cfc_Fb_Out_Opm_Out(sPath, &iCfc_y, iAntall, &iFb);
-                            break;
-
-                        default:
-                            //std::cout << "Error: Cant find output of type" << j << "\n";
-                            break;
-                        }
-                    }
-                }
-
-                if (iFb > iHeight)
                     iHeight = iFb;
 
-                //Ender funksjonsblokk
-                fOutput.open(sPath, std::ios::app);
-                fOutput << "</outputVariables>\n\t";
-                fOutput << "<addData>\n\t";
-                fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfccalltype\" handleUnknown=\"implementation\">\n\t";
-                fOutput << "<CallType xmlns=\"\">functionblock</CallType>\n\t";
-                fOutput << "</data>\n\t";
-                fOutput << "</addData>\n\t";
-                fOutput << "</block>\n\t";
-                fOutput.close();
-
-
-
-                //Outputs
-                iInOut = 0;
-                for (int j = 0; j < iSize; j++)
-                {
-                    iAntall = stoi(sRomtype563[i].substr(j, 1));
-                    if (iAntall > 0)
+                    //FB outputs
+                    iInOut = iFb = 0;
+                    for (int j = 0; j < iSize; j++)
                     {
-                        switch (j)
+                        iAntall = stoi(sRomtype563[i].substr(j, 1));
+                        if (iAntall > 0)
                         {
-                        case 1:
-                            if (sFb[i] == "1" && iAntall > 1)
-                                Knx_cfc_Out_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
-                            break;
+                            switch (j)
+                            {
+                            case 1:
+                                if (sFb[i] == "1" && iAntall > 1)
+                                    Knx_cfc_Fb_Out_Hvac(sPath, &iCfc_y, iAntall, &iFb);
+                                break;
 
-                        case 2:
-                            Knx_cfc_Out_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb, sFb[i]);
-                            break;
+                            case 2:
+                                Knx_cfc_Fb_Out_Rt(sPath, &iCfc_y, iAntall, &iFb, sFb[i]);
+                                break;
 
-                        case 3:
-                            Knx_cfc_Out_Ry_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb, sFb[i]);
-                            break;
+                            case 3:
+                                Knx_cfc_Fb_Out_Ry_Op(sPath, &iCfc_y, iAntall, &iFb, sFb[i]);
+                                break;
 
-                        case 4:
-                            Knx_cfc_Out_Lh_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
-                            break;
+                            case 4:
+                                Knx_cfc_Fb_Out_Lh_Op(sPath, &iCfc_y, iAntall, &iFb);
+                                break;
 
-                        case 5:
-                            Knx_cfc_Out_Lh_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
-                            break;
+                            case 5:
+                                Knx_cfc_Fb_Out_Lh_Cmd(sPath, &iCfc_y, iAntall, &iFb);
+                                break;
 
-                        case 6:
-                            Knx_cfc_Out_Lc_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
-                            break;
+                            case 6:
+                                Knx_cfc_Fb_Out_Lc_Op(sPath, &iCfc_y, iAntall, &iFb);
+                                break;
 
-                        case 7:
-                            Knx_cfc_Out_Lc_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
-                            break;
+                            case 7:
+                                Knx_cfc_Fb_Out_Lc_Cmd(sPath, &iCfc_y, iAntall, &iFb);
+                                break;
 
-                        case 12:
-                            Knx_cfc_Out_Lu_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
-                            break;
+                            case 12:
+                                Knx_cfc_Fb_Out_Lu_Cmd(sPath, &iCfc_y, iAntall, &iFb);
+                                break;
 
-                        case 13:
-                            Knx_cfc_Out_Opm_Out(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
-                            break;
+                            case 13:
+                                Knx_cfc_Fb_Out_Opm_Out(sPath, &iCfc_y, iAntall, &iFb);
+                                break;
 
-                        default:
-                            //std::cout << "Error: Cant find out var of type" << j << "\n";
-                            break;
+                            default:
+                                //std::cout << "Error: Cant find output of type" << j << "\n";
+                                break;
+                            }
                         }
                     }
+
+                    if (iFb > iHeight)
+                        iHeight = iFb;
+
+                    //Ender funksjonsblokk
+                    fOutput.open(sPath, std::ios::app);
+                    fOutput << "</outputVariables>\n\t";
+                    fOutput << "<addData>\n\t";
+                    fOutput << "<data name=\"http://www.3s-software.com/plcopenxml/cfccalltype\" handleUnknown=\"implementation\">\n\t";
+                    fOutput << "<CallType xmlns=\"\">functionblock</CallType>\n\t";
+                    fOutput << "</data>\n\t";
+                    fOutput << "</addData>\n\t";
+                    fOutput << "</block>\n\t";
+                    fOutput.close();
+
+
+
+                    //Outputs
+                    iInOut = 0;
+                    for (int j = 0; j < iSize; j++)
+                    {
+                        iAntall = stoi(sRomtype563[i].substr(j, 1));
+                        if (iAntall > 0)
+                        {
+                            switch (j)
+                            {
+                            case 1:
+                                if (sFb[i] == "1" && iAntall > 1)
+                                    Knx_cfc_Out_Hvac(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                                break;
+
+                            case 2:
+                                Knx_cfc_Out_Rt(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb, sFb[i]);
+                                break;
+
+                            case 3:
+                                Knx_cfc_Out_Ry_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb, sFb[i]);
+                                break;
+
+                            case 4:
+                                Knx_cfc_Out_Lh_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                                break;
+
+                            case 5:
+                                Knx_cfc_Out_Lh_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                                break;
+
+                            case 6:
+                                Knx_cfc_Out_Lc_Op(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                                break;
+
+                            case 7:
+                                Knx_cfc_Out_Lc_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                                break;
+
+                            case 12:
+                                Knx_cfc_Out_Lu_Cmd(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                                break;
+
+                            case 13:
+                                Knx_cfc_Out_Opm_Out(sPath, sGVL, sAdresseFormat, sRom[i], &iCfc_Order, &iCfc_Id, &iCfc_y, iAntall, &iInOut, iFb);
+                                break;
+
+                            default:
+                                //std::cout << "Error: Cant find out var of type" << j << "\n";
+                                break;
+                            }
+                        }
+                    }
+                    iCfc_y += 14 + iHeight;;
+                    iInOut = iFb = 0;
                 }
-                iCfc_y += 14 + iHeight;;
-                iInOut = iFb = 0;
             }
+            else
+                break;
         }
-        else
-            break;
+        fOutput.open(sPath, std::ios::app);
+
+        fOutput << "</CFC>\n" + Tabs(1);
+        fOutput << "</data>\n" + Tabs(1);
+        fOutput << "</addData>\n" + Tabs(1);
+        fOutput << "</body>\n" + Tabs(1);
+        fOutput << "<addData />\n" + Tabs(1);
+        fOutput << "</pou>\n" + Tabs(1);
     }
-    fOutput.open(sPath, std::ios::app);
-
-    fOutput << "</CFC>\n" + Tabs(1);
-    fOutput << "</data>\n" + Tabs(1);
-    fOutput << "</addData>\n" + Tabs(1);
-    fOutput << "</body>\n" + Tabs(1);
-    fOutput << "<addData />\n" + Tabs(1);
-    fOutput << "</pou>\n" + Tabs(1);
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     fOutput << "<pou name=\"PRG_360_HVAC\" pouType=\"program\">\n" + Tabs(3);
     fOutput << "<interface>\n" + Tabs(4);
@@ -1219,7 +1232,7 @@ void WriteXML_KNX(std::string sPath, bool(&bUsed)[1000], std::string& sGVL, std:
     bool xFirst = true;
     for (int i = 0; i < iMax && bUsed[i]; i++)
     {
-        if (sRomtype563[i].size() > 2)
+        if (sRomtype563[i].size() > 1)
         {
             iTemp = stoi(sRomtype563[i].substr(1, 1));
             for (int j = 1; j <= iTemp; j++)
