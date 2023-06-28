@@ -4237,6 +4237,13 @@ void Fb_Pid(std::string& sPath)
     fOutput << "<interface>\n\t";
     fOutput << "<inputVars>\n\t";
 
+    //Enable
+    fOutput << "<variable name = \"enable\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<BOOL/>\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "</variable>\n\t";
+
     //PV
     fOutput << "<variable name = \"pv\">\n\t";
     fOutput << "<type>\n\t";
@@ -4507,7 +4514,7 @@ void Fb_Pid(std::string& sPath)
 
 
     //Program
-    fOutput << "init(CLK: = (kp &gt; 0 AND NOT manMode));\n\n";
+    fOutput << "init(CLK: = (kp &gt; 0 AND enable AND NOT manMode));\n\n";
 
     fOutput << "IF manMode THEN																//Skriver manuelt SP til utgang\n\t";
         fOutput << "mv : = manValue;\n";
@@ -4518,7 +4525,7 @@ void Fb_Pid(std::string& sPath)
         fOutput << "lastKp: = kp;\n\t";
         fOutput << "lastError: = error;\n\t";
         fOutput << "cycleTime();\n";
-    fOutput << "ELSIF kp &gt; 0 THEN												//Hvis Kp er satt, kjoeres PID funksjon\n\t";
+    fOutput << "ELSIF kp &gt; 0 AND enable THEN												//Hvis Kp er satt, kjoeres PID funksjon\n\t";
 
         fOutput << "//Felles\n\t";
         fOutput << "cycleTime();\n\t";
