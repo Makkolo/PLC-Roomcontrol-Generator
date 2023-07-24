@@ -158,6 +158,7 @@
     <ClInclude Include="mortLib.h" />
     <ClInclude Include="roomcontrolXmlLib.h" />
     <ClInclude Include="writeXml.h" />
+    <ClInclude Include="xml.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
