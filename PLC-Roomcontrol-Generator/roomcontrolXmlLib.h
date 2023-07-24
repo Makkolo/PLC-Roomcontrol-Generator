@@ -4237,6 +4237,13 @@ void Fb_Pid(std::string& sPath)
     fOutput << "<interface>\n\t";
     fOutput << "<inputVars>\n\t";
 
+    //Enable
+    fOutput << "<variable name = \"enable\">\n\t";
+    fOutput << "<type>\n\t";
+    fOutput << "<BOOL/>\n\t";
+    fOutput << "</type>\n\t";
+    fOutput << "</variable>\n\t";
+
     //PV
     fOutput << "<variable name = \"pv\">\n\t";
     fOutput << "<type>\n\t";
@@ -4507,56 +4514,56 @@ void Fb_Pid(std::string& sPath)
 
 
     //Program
-    fOutput << "init(CLK: = (kp > 0 AND NOT manMode));\n\n";
+    fOutput << "init(CLK:= (kp &gt; 0 AND enable AND NOT manMode));\n\n";
 
     fOutput << "IF manMode THEN																//Skriver manuelt SP til utgang\n\t";
-        fOutput << "mv : = manValue;\n";
+        fOutput << "mv := manValue;\n";
     fOutput << "ELSIF init.Q THEN																//Hvis det er rising edge paastart betingelser vil diverse variabler resettes/initializes\n\t";
-        fOutput << "integral : = 0;\n\t";
-        fOutput << "integMax: = lastIntegMax : = 100 * ti / kp;\n\t";
-        fOutput << "lastTi: = ti;\n\t";
-        fOutput << "lastKp: = kp;\n\t";
-        fOutput << "lastError: = error;\n\t";
+        fOutput << "integral := 0;\n\t";
+        fOutput << "integMax:= lastIntegMax := 100 * ti / kp;\n\t";
+        fOutput << "lastTi:= ti;\n\t";
+        fOutput << "lastKp:= kp;\n\t";
+        fOutput << "lastError:= error;\n\t";
         fOutput << "cycleTime();\n";
-    fOutput << "ELSIF kp > 0 THEN												//Hvis Kp er satt, kjoeres PID funksjon\n\t";
+    fOutput << "ELSIF kp &gt; 0 AND enable THEN												//Hvis Kp er satt, kjoeres PID funksjon\n\t";
 
         fOutput << "//Felles\n\t";
         fOutput << "cycleTime();\n\t";
-        fOutput << "pv: = 100 * (pv - inZero) / (inMax - inZero);\n\t";
-        fOutput << "sp: = 100 * (sp - inZero) / (inMax - inZero);\n\n\t";
+        fOutput << "pv:= 100 * (pv - inZero) / (inMax - inZero);\n\t";
+        fOutput << "sp:= 100 * (sp - inZero) / (inMax - inZero);\n\n\t";
 
 
         fOutput << "//Proporsjonalt avvik\n\t";
-        fOutput << "error: = sp - pv;\n\n\t";
+        fOutput << "error:= sp - pv;\n\n\t";
 
 
         fOutput << "//Integralt avvik\n\t";
-        fOutput << "IF ti > 0 THEN\n\t\t";
-            fOutput << "IF ti <> lastTi OR kp <> lastKp THEN\n\t\t\t";
-                fOutput << "integMax : = 100 * ti / kp;\n\t\t\t";
-                fOutput << "integral: = integral * integMax / lastIntegMax;\n\t\t\t";
-                fOutput << "lastIntegMax: = integMax;\n\t\t\t";
-                fOutput << "lastTi: = ti;\n\t\t\t";
-                fOutput << "lastKp: = kp;\n\t\t";
+        fOutput << "IF ti &gt; 0 THEN\n\t\t";
+            fOutput << "IF ti &lt;&gt; lastTi OR kp &lt;&gt; lastKp THEN\n\t\t\t";
+                fOutput << "integMax := 100 * ti / kp;\n\t\t\t";
+                fOutput << "integral:= integral * integMax / lastIntegMax;\n\t\t\t";
+                fOutput << "lastIntegMax:= integMax;\n\t\t\t";
+                fOutput << "lastTi:= ti;\n\t\t\t";
+                fOutput << "lastKp:= kp;\n\t\t";
             fOutput << "END_IF\n\t";
-            fOutput << "integral : = LIMIT(0, (integral + error * cycletime.y), integMax);\n\t";
-            fOutput << "iError: = integral / ti;\n\n";
+            fOutput << "integral := LIMIT(0, (integral + error * cycletime.y), integMax);\n\t";
+            fOutput << "iError:= integral / ti;\n\n";
 
         fOutput << "ELSE\n\t";
-            fOutput << "integral : = 0;\n\t";
-            fOutput << "iError: = 0;\n";
+            fOutput << "integral := 0;\n\t";
+            fOutput << "iError:= 0;\n";
         fOutput << "END_IF\n\n\t";
 
         fOutput << "//Derivert avvik\n\t";
-        fOutput << "dError : = LIMIT(-100, td * (error - lastError) / cycletime.y, 100);\n\t";
-        fOutput << "lastError: = error;\n\n\t";
+        fOutput << "dError := LIMIT(-100, td * (error - lastError) / cycletime.y, 100);\n\t";
+        fOutput << "lastError:= error;\n\n\t";
 
 
         fOutput << "//PID utregnign\n\t";
-        fOutput << "mv: = LIMIT(0, kp * (error + iError + dError) + bias, 100) * (outMax - outZero) / 100 + outZero;\n\n";
+        fOutput << "mv:= LIMIT(0, kp * (error + iError + dError) + bias, 100) * (outMax - outZero) / 100 + outZero;\n\n";
 
     fOutput << "ELSE\n\t";
-        fOutput << "mv : = 0;\n";
+        fOutput << "mv := 0;\n";
     fOutput << "END_IF\n\t";
 
 
@@ -5187,7 +5194,7 @@ void Knx_cfc_Master(std::string& sPath, std::string& sGvl, std::string& sAdresse
     fOutput << "</connector>\n\t";
 
     fOutput << "<inVariable localId = \"" << (8 + *iCfc_Id) << "\">\n\t";
-    fOutput << "<position x = \"80\" y = \"9\"/>\n\t";
+    fOutput << "<position x = \"79\" y = \"9\"/>\n\t";
     fOutput << "<connectionPointOut>\n\t";
     fOutput << "<expression/>\n\t";
     fOutput << "</connectionPointOut>\n\t";
@@ -5203,7 +5210,7 @@ void Knx_cfc_Master(std::string& sPath, std::string& sGvl, std::string& sAdresse
 
     //EQ blokk
     fOutput << "<block localId = \"" << (10 + *iCfc_Id) << "\" executionOrderId = \"" << (2 + *iCfc_Order) << "\" typeName = \"EQ\">\n\t";
-    fOutput << "<position x = \"85\" y = \"6\"/>\n\t";
+    fOutput << "<position x = \"85\" y = \"7\"/>\n\t";
 
     fOutput << "<inputVariables>\n\t";
 
@@ -5340,7 +5347,7 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</connector>\n\t";
 
     fOutput << "<block localId=\"5\" executionOrderId=\"1\" typeName=\"BOOL_TO_INT\">\n\t";
-    fOutput << "<position x=\"20\" y=\"5\" />\n\t";
+    fOutput << "<position x=\"20\" y=\"6\" />\n\t";
     fOutput << "<inputVariables>\n\t";
     fOutput << "<variable formalParameter=\"In1\">\n\t";
     fOutput << "<connectionPointIn>\n\t";
@@ -5364,12 +5371,14 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</data>\n\t";
     fOutput << "</addData>\n\t";
     fOutput << "</block>\n\t";
+
     fOutput << "<connector localId=\"6\" name=\"\">\n\t";
     fOutput << "<position x=\"11\" y=\"184\" />\n\t";
     fOutput << "<connectionPointIn>\n\t";
     fOutput << "<connection refLocalId=\"5\" formalParameter=\"\" />\n\t";
     fOutput << "</connectionPointIn>\n\t";
     fOutput << "</connector>\n\t";
+
     fOutput << "<inVariable localId=\"7\">\n\t";
     fOutput << "<position x=\"25\" y=\"9\" />\n\t";
     fOutput << "<connectionPointOut>\n\t";
@@ -5377,14 +5386,16 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</connectionPointOut>\n\t";
     fOutput << "<expression>i</expression>\n\t";
     fOutput << "</inVariable>\n\t";
+
     fOutput << "<connector localId=\"8\" name=\"\">\n\t";
     fOutput << "<position x=\"11\" y=\"184\" />\n\t";
     fOutput << "<connectionPointIn>\n\t";
     fOutput << "<connection refLocalId=\"7\" formalParameter=\"i\" />\n\t";
     fOutput << "</connectionPointIn>\n\t";
     fOutput << "</connector>\n\t";
+
     fOutput << "<block localId=\"9\" executionOrderId=\"2\" typeName=\"ADD\">\n\t";
-    fOutput << "<position x=\"31\" y=\"5\" />\n\t";
+    fOutput << "<position x=\"31\" y=\"6\" />\n\t";
     fOutput << "<inputVariables>\n\t";
     fOutput << "<variable formalParameter=\"In1\">\n\t";
     fOutput << "<connectionPointIn>\n\t";
@@ -5414,12 +5425,14 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</data>\n\t";
     fOutput << "</addData>\n\t";
     fOutput << "</block>\n\t";
+
     fOutput << "<connector localId=\"10\" name=\"\">\n\t";
     fOutput << "<position x=\"11\" y=\"184\" />\n\t";
     fOutput << "<connectionPointIn>\n\t";
     fOutput << "<connection refLocalId=\"9\" formalParameter=\"\" />\n\t";
     fOutput << "</connectionPointIn>\n\t";
     fOutput << "</connector>\n\t";
+
     fOutput << "<outVariable localId=\"11\" executionOrderId=\"3\">\n\t";
     fOutput << "<position x=\"36\" y=\"7\" />\n\t";
     fOutput << "<connectionPointIn>\n\t";
@@ -5428,6 +5441,7 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</connectionPointIn>\n\t";
     fOutput << "<expression>i</expression>\n\t";
     fOutput << "</outVariable>\n\t";
+
     fOutput << "<connector localId=\"12\" name=\"\">\n\t";
     fOutput << "<position x=\"11\" y=\"184\" />\n\t";
     fOutput << "<connectionPointIn>\n\t";
@@ -5451,7 +5465,7 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</connector>\n\t";
 
     fOutput << "<block localId=\"15\" executionOrderId=\"4\" typeName=\"GT\">\n\t";
-    fOutput << "<position x=\"31\" y=\"9\" />\n\t";
+    fOutput << "<position x=\"31\" y=\"10\" />\n\t";
     fOutput << "<inputVariables>\n\t";
     fOutput << "<variable formalParameter=\"In1\">\n\t";
     fOutput << "<connectionPointIn>\n\t";
@@ -5481,6 +5495,7 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</data>\n\t";
     fOutput << "</addData>\n\t";
     fOutput << "</block>\n\t";
+
     fOutput << "<connector localId=\"16\" name=\"\">\n\t";
     fOutput << "<position x=\"11\" y=\"184\" />\n\t";
     fOutput << "<connectionPointIn>\n\t";
@@ -5502,7 +5517,7 @@ void Knx_cfc_Interval(std::string& sPath, int& iKnxOutputs)
     fOutput << "</connectionPointIn>\n\t";
     fOutput << "</connector>\n\t";
 
-    fOutput << "<block localId=\"19\" executionOrderId=\"5\" typeName=\"MOVE\">\n\t";
+    fOutput << "<block localId=\"19\" executionOrderId=\"6\" typeName=\"MOVE\">\n\t";
     fOutput << "<position x=\"41\" y=\"9\" />\n\t";
     fOutput << "<inputVariables>\n\t";
     fOutput << "<variable formalParameter=\"EN\">\n\t";
