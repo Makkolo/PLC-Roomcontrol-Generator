@@ -1,9 +1,9 @@
 #pragma once
 #ifndef roomcontrolXmlLib
 #define roomcontrolXmlLib
-#include <iostream>\n\t";
-#include <fstream>\n\t";
-#include <windows.h>\n\t";
+#include <iostream>
+#include <fstream>
+#include <windows.h>
 #include "mortLib.h"
 
 
